@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fun and Pop Colors for Food Ordering App */
+  --background: #FFF9F0;
+  --foreground: #2D1B12;
+  
+  /* Primary Brand Colors */
+  --primary: #FF6B35;        /* Vibrant Orange - Main CTA */
+  --primary-dark: #E85A2A;   /* Darker Orange for hover */
+  --primary-light: #FFE5DB;  /* Light Orange for backgrounds */
+  
+  /* Secondary Colors */
+  --secondary: #FFD23F;      /* Sunny Yellow - Accent */
+  --secondary-dark: #F0C030; /* Golden Yellow */
+  
+  /* Tertiary Colors */
+  --tertiary: #4ECDC4;       /* Mint Green - Success/Fresh */
+  --tertiary-dark: #3AB8AF;  /* Darker Mint */
+  
+  /* Accent Colors */
+  --accent-purple: #A64AC9;  /* Fun Purple */
+  --accent-pink: #FF6B9D;    /* Playful Pink */
+  --accent-green: #6BCF7F;   /* Fresh Green */
+  
+  /* Neutral Colors */
+  --neutral-100: #FFFFFF;
+  --neutral-200: #F5F5F5;
+  --neutral-300: #E0E0E0;
+  --neutral-700: #4A4A4A;
+  --neutral-900: #2D1B12;
+  
+  /* Status Colors */
+  --success: #6BCF7F;
+  --warning: #FFD23F;
+  --error: #FF4757;
+  --info: #4ECDC4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-secondary: var(--secondary);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-dark: var(--tertiary-dark);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-green: var(--accent-green);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Custom Animations */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+/* Custom Gradient Backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--tertiary) 0%, var(--accent-purple) 100%);
+}
+
+.gradient-food {
+  background: linear-gradient(135deg, var(--accent-pink) 0%, var(--primary) 50%, var(--secondary) 100%);
 }
