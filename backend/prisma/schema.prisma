@@ -1,0 +1,145 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum Country {
+  INDIA
+  AMERICA
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentType {
+  CREDIT_CARD
+  DEBIT_CARD
+  UPI
+  WALLET
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password       String
+  name           String
+  role           Role            @default(MEMBER)
+  country        Country
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  orders         Order[]
+  paymentMethods PaymentMethod[]
+
+  @@index([role])
+  @@index([country])
+}
+
+model Restaurant {
+  id           String     @id @default(uuid())
+  name         String
+  description  String
+  imageUrl     String
+  country      Country
+  cuisine      String
+  rating       Float      @default(0)
+  deliveryTime String
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  menuItems    MenuItem[]
+  orders       Order[]
+
+  @@index([country])
+  @@index([isActive])
+}
+
+model MenuItem {
+  id           String      @id @default(uuid())
+  restaurantId String
+  name         String
+  description  String
+  price        Float
+  imageUrl     String
+  category     String
+  isAvailable  Boolean     @default(true)
+  isVegetarian Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  orderItems   OrderItem[]
+
+  @@index([restaurantId])
+  @@index([category])
+}
+
+model Order {
+  id              String         @id @default(uuid())
+  userId          String
+  restaurantId    String
+  status          OrderStatus    @default(DRAFT)
+  totalAmount     Float
+  deliveryAddress String?
+  paymentMethodId String?
+  paidAt          DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation(fields: [userId], references: [id])
+  restaurant      Restaurant     @relation(fields: [restaurantId], references: [id])
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  orderItems      OrderItem[]
+
+  @@index([userId])
+  @@index([restaurantId])
+  @@index([status])
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  menuItemId   String
+  quantity     Int
+  priceAtOrder Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem     MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId])
+}
+
+model PaymentMethod {
+  id           String      @id @default(uuid())
+  userId       String?
+  type         PaymentType
+  provider     String
+  last4Digits  String
+  expiryMonth  Int
+  expiryYear   Int
+  isDefault    Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  user         User?       @relation(fields: [userId], references: [id])
+  orders       Order[]
+
+  @@index([userId])
+}

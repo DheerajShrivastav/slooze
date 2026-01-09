@@ -1,0 +1,223 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddOrderItemInput {
+  menuItemId: String!
+  orderId: String!
+  quantity: Int!
+}
+
+input AddPaymentMethodInput {
+  expiryMonth: Int!
+  expiryYear: Int!
+  isDefault: Boolean
+  last4Digits: String!
+  provider: String!
+  type: PaymentMethodType!
+}
+
+type AuthPayload {
+  token: String!
+  user: UserType!
+}
+
+input CheckoutInput {
+  deliveryAddress: String
+  orderId: String!
+  paymentMethodId: String!
+}
+
+enum Country {
+  AMERICA
+  INDIA
+}
+
+input CreateMenuItemInput {
+  category: String!
+  description: String!
+  imageUrl: String!
+  isAvailable: Boolean
+  isVegetarian: Boolean
+  name: String!
+  price: Float!
+  restaurantId: String!
+}
+
+input CreateOrderInput {
+  deliveryAddress: String
+  restaurantId: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type MenuItemType {
+  category: String!
+  createdAt: DateTime!
+  description: String!
+  id: String!
+  imageUrl: String!
+  isAvailable: Boolean!
+  isVegetarian: Boolean!
+  name: String!
+  price: Float!
+  restaurantId: String!
+  updatedAt: DateTime!
+}
+
+type Mutation {
+  addOrderItem(input: AddOrderItemInput!): OrderItemType!
+  addPaymentMethod(input: AddPaymentMethodInput!): PaymentMethodObjectType!
+  cancelOrder(orderId: String!): OrderType!
+  checkout(input: CheckoutInput!): OrderType!
+  createMenuItem(input: CreateMenuItemInput!): MenuItemType!
+  createOrder(input: CreateOrderInput!): OrderType!
+  deleteMenuItem(id: String!): Boolean!
+  deletePaymentMethod(id: String!): Boolean!
+  login(input: LoginInput!): AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
+  removeOrderItem(id: String!): Boolean!
+  updateMenuItem(id: String!, input: UpdateMenuItemInput!): MenuItemType!
+  updateOrderItem(input: UpdateOrderItemInput!): OrderItemType!
+  updatePaymentMethod(id: String!, input: UpdatePaymentMethodInput!): PaymentMethodObjectType!
+  updateUserCountry(country: Country!, userId: String!): UserType!
+  updateUserRole(role: Role!, userId: String!): UserType!
+}
+
+type OrderItemType {
+  createdAt: DateTime!
+  id: String!
+  menuItemId: String!
+  orderId: String!
+  priceAtOrder: Float!
+  quantity: Int!
+  updatedAt: DateTime!
+}
+
+enum OrderStatus {
+  CANCELLED
+  CONFIRMED
+  DELIVERED
+  DRAFT
+  PENDING
+}
+
+type OrderType {
+  cancelledAt: DateTime
+  createdAt: DateTime!
+  deliveryAddress: String
+  id: String!
+  orderItems: [OrderItemType!]
+  paidAt: DateTime
+  paymentMethodId: String
+  restaurantId: String!
+  status: OrderStatus!
+  totalAmount: Float!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type PaymentMethodObjectType {
+  createdAt: DateTime!
+  expiryMonth: Int!
+  expiryYear: Int!
+  id: String!
+  isDefault: Boolean!
+  last4Digits: String!
+  provider: String!
+  type: PaymentMethodType!
+  updatedAt: DateTime!
+  userId: String
+}
+
+enum PaymentMethodType {
+  CREDIT_CARD
+  DEBIT_CARD
+  UPI
+  WALLET
+}
+
+type Query {
+  availablePaymentMethods: [PaymentMethodObjectType!]!
+  me: UserType!
+  menuItem(id: String!): MenuItemType
+  menuItems(category: String, isAvailable: Boolean = true, isVegetarian: Boolean, restaurantId: String!): [MenuItemType!]!
+  myOrders(limit: Int = 10, offset: Int = 0, status: OrderStatus): [OrderType!]!
+  order(id: String!): OrderType
+  orders(country: String, restaurantId: String, status: OrderStatus, userId: String): [OrderType!]!
+  paymentMethod(id: String!): PaymentMethodObjectType
+  paymentMethods: [PaymentMethodObjectType!]!
+  restaurant(id: String!): RestaurantType!
+  restaurants: [RestaurantType!]!
+  user(id: String!): UserType
+  users(country: Country, role: Role): [UserType!]!
+}
+
+input RegisterInput {
+  country: Country!
+  email: String!
+  name: String!
+  password: String!
+}
+
+type RestaurantType {
+  country: Country!
+  createdAt: DateTime!
+  cuisine: String!
+  deliveryTime: String!
+  description: String!
+  id: String!
+  imageUrl: String!
+  isActive: Boolean!
+  name: String!
+  rating: Float!
+  updatedAt: DateTime!
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+input UpdateMenuItemInput {
+  category: String
+  description: String
+  imageUrl: String
+  isAvailable: Boolean
+  isVegetarian: Boolean
+  name: String
+  price: Float
+}
+
+input UpdateOrderItemInput {
+  orderItemId: String!
+  quantity: Int!
+}
+
+input UpdatePaymentMethodInput {
+  expiryMonth: Int
+  expiryYear: Int
+  isDefault: Boolean
+  last4Digits: String
+  provider: String
+  type: PaymentMethodType
+}
+
+type UserType {
+  country: Country!
+  createdAt: DateTime!
+  email: String!
+  id: String!
+  name: String!
+  role: Role!
+  updatedAt: DateTime!
+}
