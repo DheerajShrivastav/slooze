@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 // Mock data for demonstration
 const restaurants = [
@@ -96,12 +97,16 @@ export default function Home() {
               </a>
             </nav>
             <div className="flex items-center gap-3">
-              <button className="hidden sm:block px-4 py-2 text-[#FF6B35] font-semibold hover:bg-[#FFE5DB] rounded-full transition-colors">
-                Sign In
-              </button>
-              <button className="px-5 py-2 bg-gradient-to-r from-[#FF6B35] to-[#FFD23F] text-white font-bold rounded-full hover:shadow-lg transform hover:scale-105 transition-all">
-                Sign Up
-              </button>
+              <Link href="/auth/login">
+                <button className="hidden sm:block px-4 py-2 text-[#FF6B35] font-semibold hover:bg-[#FFE5DB] rounded-full transition-colors">
+                  Sign In
+                </button>
+              </Link>
+              <Link href="/auth/register">
+                <button className="px-5 py-2 bg-gradient-to-r from-[#FF6B35] to-[#FFD23F] text-white font-bold rounded-full hover:shadow-lg transform hover:scale-105 transition-all">
+                  Sign Up
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -189,37 +194,38 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {restaurants.map((restaurant, index) => (
-              <div
-                key={restaurant.id}
-                className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="relative h-48 bg-gradient-to-br from-[#FFE5DB] to-[#FFD23F]/30 flex items-center justify-center">
-                  <div className="text-8xl group-hover:scale-110 transition-transform duration-300">
-                    {restaurant.imageUrl}
+              <Link key={restaurant.id} href={`/restaurant/${restaurant.id}`}>
+                <div
+                  className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="relative h-48 bg-gradient-to-br from-[#FFE5DB] to-[#FFD23F]/30 flex items-center justify-center">
+                    <div className="text-8xl group-hover:scale-110 transition-transform duration-300">
+                      {restaurant.imageUrl}
+                    </div>
+                    <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+                      <span className="text-yellow-500">⭐</span>
+                      <span className="font-bold text-gray-900">{restaurant.rating}</span>
+                    </div>
                   </div>
-                  <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-                    <span className="text-yellow-500">⭐</span>
-                    <span className="font-bold text-gray-900">{restaurant.rating}</span>
+                  <div className="p-6">
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">{restaurant.name}</h4>
+                    <p className="text-gray-600 text-sm mb-3">{restaurant.description}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="inline-block px-3 py-1 bg-[#FFE5DB] text-[#FF6B35] text-xs font-semibold rounded-full">
+                        {restaurant.cuisine}
+                      </span>
+                      <span className="flex items-center gap-1 text-sm text-gray-700">
+                        <span>🕒</span>
+                        {restaurant.deliveryTime}
+                      </span>
+                    </div>
+                    <button className="mt-4 w-full py-3 bg-gradient-to-r from-[#FF6B35] to-[#FFD23F] text-white font-bold rounded-full hover:shadow-lg transform hover:scale-105 transition-all">
+                      Order Now
+                    </button>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">{restaurant.name}</h4>
-                  <p className="text-gray-600 text-sm mb-3">{restaurant.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="inline-block px-3 py-1 bg-[#FFE5DB] text-[#FF6B35] text-xs font-semibold rounded-full">
-                      {restaurant.cuisine}
-                    </span>
-                    <span className="flex items-center gap-1 text-sm text-gray-700">
-                      <span>🕒</span>
-                      {restaurant.deliveryTime}
-                    </span>
-                  </div>
-                  <button className="mt-4 w-full py-3 bg-gradient-to-r from-[#FF6B35] to-[#FFD23F] text-white font-bold rounded-full hover:shadow-lg transform hover:scale-105 transition-all">
-                    Order Now
-                  </button>
-                </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
