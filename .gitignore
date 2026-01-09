@@ -25,6 +25,9 @@ out/
 *.swp
 *.swo
 
+# Reference documentation (local only)
+reffrence/
+
 # OS files
 .DS_Store
 Thumbs.db
