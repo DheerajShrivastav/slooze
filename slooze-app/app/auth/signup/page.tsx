@@ -34,7 +34,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     name: '',
-    country: 'US',
+    country: 'AMERICA',
   })
 
   const [register, { loading, error }] = useMutation(REGISTER_MUTATION)
@@ -55,8 +55,7 @@ export default function SignupPage() {
             email: formData.email,
             password: formData.password,
             name: formData.name,
-            role: 'CUSTOMER', // Default role
-            country: formData.country, // Default or selected
+            country: formData.country,
           },
         },
       })

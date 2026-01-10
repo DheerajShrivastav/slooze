@@ -43,7 +43,12 @@ export class OrdersService {
     })
   }
 
-  async findOne(id: string, userId: string, userRole: string) {
+  async findOne(
+    id: string,
+    userId: string,
+    userRole: string,
+    userCountry?: string
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
@@ -59,8 +64,21 @@ export class OrdersService {
       throw new NotFoundException('Order not found')
     }
 
-    // Only owner or admin can view the order
-    if (userRole !== 'ADMIN' && order.userId !== userId) {
+    // Admin can view any order
+    if (userRole === 'ADMIN') {
+      return order
+    }
+
+    // Manager can only view orders from restaurants in their country
+    if (userRole === 'MANAGER') {
+      if (order.restaurant.country !== userCountry) {
+        throw new ForbiddenException('Access denied to this order')
+      }
+      return order
+    }
+
+    // Regular users can only view their own orders
+    if (order.userId !== userId) {
       throw new ForbiddenException('Access denied to this order')
     }
 

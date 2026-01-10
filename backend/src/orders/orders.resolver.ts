@@ -44,24 +44,33 @@ export class OrdersResolver {
     @Args('id') id: string,
     @CurrentUser() user: any
   ): Promise<OrderType> {
-    return await this.ordersService.findOne(id, user.id, user.role)
+    return await this.ordersService.findOne(
+      id,
+      user.id,
+      user.role,
+      user.country
+    )
   }
 
   @Query(() => [OrderType])
   @UseGuards(RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'MANAGER')
   async orders(
+    @CurrentUser() user: any,
     @Args('userId', { nullable: true }) userId: string,
     @Args('restaurantId', { nullable: true }) restaurantId: string,
     @Args('status', { type: () => OrderStatus, nullable: true })
     status: OrderStatus,
     @Args('country', { nullable: true }) country: string
   ): Promise<OrderType[]> {
+    // MANAGER can only see orders from restaurants in their country
+    const effectiveCountry = user.role === 'MANAGER' ? user.country : country
+
     return await this.ordersService.findAll({
       userId,
       restaurantId,
       status,
-      country,
+      country: effectiveCountry,
     })
   }
 
