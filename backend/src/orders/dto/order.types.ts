@@ -15,6 +15,10 @@ import {
   IsEnum,
 } from 'class-validator'
 import { OrderStatus as PrismaOrderStatus } from '@prisma/client'
+import { MenuItemType } from '../../menu-items/dto/menu-item.types'
+import { UserType } from '../../auth/dto/auth.types'
+import { RestaurantType } from '../../restaurants/dto/restaurant.types'
+import { PaymentMethodObjectType } from '../../payment-methods/dto/payment-method.types'
 
 // Re-export Prisma enum
 export const OrderStatus = PrismaOrderStatus
@@ -38,6 +42,9 @@ export class OrderItemType {
 
   @Field(() => Float)
   priceAtOrder: number
+
+  @Field(() => MenuItemType, { nullable: true })
+  menuItem?: MenuItemType
 
   @Field()
   createdAt: Date
@@ -83,6 +90,15 @@ export class OrderType {
 
   @Field(() => [OrderItemType], { nullable: true })
   orderItems?: OrderItemType[]
+
+  @Field(() => UserType, { nullable: true })
+  user?: UserType
+
+  @Field(() => RestaurantType, { nullable: true })
+  restaurant?: RestaurantType
+
+  @Field(() => PaymentMethodObjectType, { nullable: true })
+  paymentMethod?: PaymentMethodObjectType | null
 }
 
 @InputType()
@@ -157,4 +173,26 @@ export class OrdersFilterInput {
   @IsOptional()
   @IsEnum(OrderStatus)
   status?: OrderStatus
+}
+
+@InputType()
+export class UpdateOrderStatusInput {
+  @Field()
+  @IsUUID()
+  orderId: string
+
+  @Field(() => OrderStatus)
+  @IsEnum(OrderStatus)
+  status: OrderStatus
+}
+
+@InputType()
+export class AdminProcessPaymentInput {
+  @Field()
+  @IsUUID()
+  orderId: string
+
+  @Field()
+  @IsUUID()
+  paymentMethodId: string
 }

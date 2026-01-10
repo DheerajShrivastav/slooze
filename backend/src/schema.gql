@@ -17,6 +17,11 @@ input AddPaymentMethodInput {
   type: PaymentMethodType!
 }
 
+input AdminProcessPaymentInput {
+  orderId: String!
+  paymentMethodId: String!
+}
+
 type AuthPayload {
   token: String!
   user: UserType!
@@ -76,6 +81,7 @@ type MenuItemType {
 type Mutation {
   addOrderItem(input: AddOrderItemInput!): OrderItemType!
   addPaymentMethod(input: AddPaymentMethodInput!): PaymentMethodObjectType!
+  adminProcessPayment(input: AdminProcessPaymentInput!): OrderType!
   cancelOrder(orderId: String!): OrderType!
   checkout(input: CheckoutInput!): OrderType!
   createMenuItem(input: CreateMenuItemInput!): MenuItemType!
@@ -87,6 +93,7 @@ type Mutation {
   removeOrderItem(id: String!): Boolean!
   updateMenuItem(id: String!, input: UpdateMenuItemInput!): MenuItemType!
   updateOrderItem(input: UpdateOrderItemInput!): OrderItemType!
+  updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   updatePaymentMethod(id: String!, input: UpdatePaymentMethodInput!): PaymentMethodObjectType!
   updateUserCountry(country: Country!, userId: String!): UserType!
   updateUserRole(role: Role!, userId: String!): UserType!
@@ -95,6 +102,7 @@ type Mutation {
 type OrderItemType {
   createdAt: DateTime!
   id: String!
+  menuItem: MenuItemType
   menuItemId: String!
   orderId: String!
   priceAtOrder: Float!
@@ -117,11 +125,14 @@ type OrderType {
   id: String!
   orderItems: [OrderItemType!]
   paidAt: DateTime
+  paymentMethod: PaymentMethodObjectType
   paymentMethodId: String
+  restaurant: RestaurantType
   restaurantId: String!
   status: OrderStatus!
   totalAmount: Float!
   updatedAt: DateTime!
+  user: UserType
   userId: String!
 }
 
@@ -201,6 +212,11 @@ input UpdateMenuItemInput {
 input UpdateOrderItemInput {
   orderItemId: String!
   quantity: Int!
+}
+
+input UpdateOrderStatusInput {
+  orderId: String!
+  status: OrderStatus!
 }
 
 input UpdatePaymentMethodInput {

@@ -13,6 +13,8 @@ import {
   AddOrderItemInput,
   UpdateOrderItemInput,
   CheckoutInput,
+  UpdateOrderStatusInput,
+  AdminProcessPaymentInput,
 } from './dto/order.types'
 
 @Resolver(() => OrderType)
@@ -118,5 +120,23 @@ export class OrdersResolver {
     @Args('orderId') orderId: string
   ): Promise<OrderType> {
     return await this.ordersService.cancelOrder(user.id, user.role, orderId)
+  }
+
+  @Mutation(() => OrderType)
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'MANAGER')
+  async updateOrderStatus(
+    @Args('input') input: UpdateOrderStatusInput
+  ): Promise<OrderType> {
+    return await this.ordersService.updateOrderStatus(input.orderId, input.status)
+  }
+
+  @Mutation(() => OrderType)
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'MANAGER')
+  async adminProcessPayment(
+    @Args('input') input: AdminProcessPaymentInput
+  ): Promise<OrderType> {
+    return await this.ordersService.adminProcessPayment(input.orderId, input.paymentMethodId)
   }
 }

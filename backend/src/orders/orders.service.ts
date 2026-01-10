@@ -91,9 +91,14 @@ export class OrdersService {
     return await this.prisma.order.findMany({
       where,
       include: {
-        orderItems: true,
+        orderItems: {
+          include: {
+            menuItem: true,
+          },
+        },
         restaurant: true,
         user: true,
+        paymentMethod: true,
       },
       orderBy: { createdAt: 'desc' },
     })
@@ -339,6 +344,83 @@ export class OrdersService {
       },
       include: {
         orderItems: true,
+      },
+    })
+  }
+
+  async updateOrderStatus(orderId: string, status: OrderStatus) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    })
+
+    if (!order) {
+      throw new NotFoundException('Order not found')
+    }
+
+    const updateData: any = { status }
+
+    // Set timestamps based on status
+    if (status === 'CANCELLED') {
+      updateData.cancelledAt = new Date()
+    } else if (status === 'DELIVERED') {
+      updateData.paidAt = updateData.paidAt || new Date()
+    }
+
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: updateData,
+      include: {
+        orderItems: {
+          include: {
+            menuItem: true,
+          },
+        },
+        restaurant: true,
+        user: true,
+        paymentMethod: true,
+      },
+    })
+  }
+
+  async adminProcessPayment(orderId: string, paymentMethodId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { orderItems: true },
+    })
+
+    if (!order) {
+      throw new NotFoundException('Order not found')
+    }
+
+    if (order.status !== 'DRAFT' && order.status !== 'PENDING') {
+      throw new BadRequestException('Can only process payment for draft or pending orders')
+    }
+
+    // Verify payment method exists
+    const paymentMethod = await this.prisma.paymentMethod.findUnique({
+      where: { id: paymentMethodId },
+    })
+
+    if (!paymentMethod) {
+      throw new NotFoundException('Payment method not found')
+    }
+
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: 'CONFIRMED',
+        paymentMethodId: paymentMethodId,
+        paidAt: new Date(),
+      },
+      include: {
+        orderItems: {
+          include: {
+            menuItem: true,
+          },
+        },
+        restaurant: true,
+        user: true,
+        paymentMethod: true,
       },
     })
   }
