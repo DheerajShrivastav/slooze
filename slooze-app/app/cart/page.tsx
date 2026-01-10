@@ -5,13 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/lib/cart-context'
 import { useAuth } from '@/lib/auth-context'
-import {
-  Trash2,
-  Plus,
-  Minus,
-  ArrowRight,
-  ShoppingBag,
-} from 'lucide-react'
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'

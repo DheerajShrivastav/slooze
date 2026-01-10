@@ -53,21 +53,24 @@ export default function RestaurantsPage() {
   // Get unique cuisines from restaurants
   const cuisines = useMemo(() => {
     if (!data?.restaurants) return ['All']
-    const uniqueCuisines = [...new Set(data.restaurants.map((r: Restaurant) => r.cuisine))]
+    const uniqueCuisines = [
+      ...new Set(data.restaurants.map((r: Restaurant) => r.cuisine)),
+    ]
     return ['All', ...uniqueCuisines.sort()]
   }, [data?.restaurants])
 
   // Filter restaurants based on search and cuisine
   const filteredRestaurants = useMemo(() => {
     if (!data?.restaurants) return []
-    
+
     return data.restaurants.filter((restaurant: Restaurant) => {
-      const matchesSearch = searchQuery.trim() === '' || 
+      const matchesSearch =
+        searchQuery.trim() === '' ||
         restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-      
-      const matchesCuisine = selectedCuisine === 'All' || 
-        restaurant.cuisine === selectedCuisine
+
+      const matchesCuisine =
+        selectedCuisine === 'All' || restaurant.cuisine === selectedCuisine
 
       return matchesSearch && matchesCuisine
     })
@@ -95,7 +98,10 @@ export default function RestaurantsPage() {
         <div className="mb-8 space-y-4">
           {/* Search Bar */}
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              size={18}
+            />
             <Input
               type="text"
               placeholder="Search restaurants or cuisines..."
@@ -162,7 +168,8 @@ export default function RestaurantsPage() {
             {/* Results Count */}
             {searchQuery || selectedCuisine !== 'All' ? (
               <p className="text-sm text-muted-foreground mb-4">
-                Found {filteredRestaurants.length} restaurant{filteredRestaurants.length !== 1 ? 's' : ''}
+                Found {filteredRestaurants.length} restaurant
+                {filteredRestaurants.length !== 1 ? 's' : ''}
                 {searchQuery && ` for "${searchQuery}"`}
                 {selectedCuisine !== 'All' && ` in ${selectedCuisine}`}
               </p>
@@ -188,62 +195,62 @@ export default function RestaurantsPage() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredRestaurants.map((restaurant: Restaurant) => (
-              <Link
-                href={`/restaurants/${restaurant.id}`}
-                key={restaurant.id}
-                className="block h-full group"
-              >
-                <Card className="border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full">
-                  <div className="relative h-48 bg-gray-100 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
-                    <div className="absolute bottom-4 left-4 z-20 text-white">
-                      <h3 className="font-bold text-xl drop-shadow-md">
-                        {restaurant.name}
-                      </h3>
-                      <p className="text-xs font-medium opacity-90">
-                        {restaurant.cuisine}
-                      </p>
-                    </div>
-                    {restaurant.imageUrl ? (
-                      <img
-                        src={restaurant.imageUrl}
-                        alt={restaurant.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">
-                        🍽️
+                  <Link
+                    href={`/restaurants/${restaurant.id}`}
+                    key={restaurant.id}
+                    className="block h-full group"
+                  >
+                    <Card className="border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full">
+                      <div className="relative h-48 bg-gray-100 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                        <div className="absolute bottom-4 left-4 z-20 text-white">
+                          <h3 className="font-bold text-xl drop-shadow-md">
+                            {restaurant.name}
+                          </h3>
+                          <p className="text-xs font-medium opacity-90">
+                            {restaurant.cuisine}
+                          </p>
+                        </div>
+                        {restaurant.imageUrl ? (
+                          <img
+                            src={restaurant.imageUrl}
+                            alt={restaurant.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl">
+                            🍽️
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold">
-                        <Star size={12} className="fill-green-700" />
-                        {restaurant.rating}
-                      </div>
-                      <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                        <Clock size={12} />
-                        {restaurant.deliveryTime}
-                      </div>
-                    </div>
-                    <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm">
-                      <span className="text-primary font-bold hover:underline">
-                        View Menu
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 rounded-full p-0"
-                      >
-                        <MapPin size={14} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                      <CardContent className="p-5">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold">
+                            <Star size={12} className="fill-green-700" />
+                            {restaurant.rating}
+                          </div>
+                          <div className="flex items-center gap-1 text-muted-foreground text-xs">
+                            <Clock size={12} />
+                            {restaurant.deliveryTime}
+                          </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm">
+                          <span className="text-primary font-bold hover:underline">
+                            View Menu
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 rounded-full p-0"
+                          >
+                            <MapPin size={14} />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
               </div>
             )}
           </>

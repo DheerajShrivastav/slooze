@@ -29,7 +29,9 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/restaurants?search=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(
+        `/restaurants?search=${encodeURIComponent(searchQuery.trim())}`
+      )
       setSearchQuery('')
     }
   }
@@ -81,7 +83,10 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border focus-within:ring-1 ring-primary transition-all">
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border focus-within:ring-1 ring-primary transition-all"
+          >
             <Search className="w-4 h-4 text-muted-foreground" />
             <input
               type="text"

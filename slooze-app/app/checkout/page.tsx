@@ -255,7 +255,9 @@ export default function CheckoutPage() {
               <div className="border-t pt-4 flex justify-between items-end">
                 <div>
                   <span className="text-sm text-muted-foreground">Total</span>
-                  <div className="text-2xl font-black">${finalTotal.toFixed(2)}</div>
+                  <div className="text-2xl font-black">
+                    ${finalTotal.toFixed(2)}
+                  </div>
                 </div>
               </div>
 
