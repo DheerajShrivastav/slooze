@@ -37,7 +37,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
@@ -172,7 +172,7 @@ export function Header() {
           {isAdminOrManager && (
             <Link
               href="/admin"
-              className="block text-sm font-medium hover:text-primary flex items-center gap-1"
+              className="text-sm font-medium hover:text-primary flex items-center gap-1"
             >
               <LayoutDashboard size={14} />
               Dashboard

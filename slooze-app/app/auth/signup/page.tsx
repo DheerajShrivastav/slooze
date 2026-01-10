@@ -8,13 +8,26 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select' // We need to create Select component first or use basic select
+
+interface RegisterResponse {
+  register: {
+    token: string
+    user: {
+      id: string
+      email: string
+      name: string
+    }
+  }
+}
+
+interface RegisterInput {
+  input: {
+    email: string
+    password: string
+    name: string
+    country: string
+  }
+}
 
 const REGISTER_MUTATION = gql`
   mutation Register($input: RegisterInput!) {
@@ -37,7 +50,10 @@ export default function SignupPage() {
     country: 'AMERICA',
   })
 
-  const [register, { loading, error }] = useMutation(REGISTER_MUTATION)
+  const [register, { loading, error }] = useMutation<
+    RegisterResponse,
+    RegisterInput
+  >(REGISTER_MUTATION)
   const router = useRouter()
 
   const handleChange = (

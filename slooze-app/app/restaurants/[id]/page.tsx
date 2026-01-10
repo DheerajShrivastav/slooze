@@ -37,11 +37,44 @@ const GET_RESTAURANT_DETAILS = gql`
   }
 `
 
+interface Restaurant {
+  id: string
+  name: string
+  description?: string
+  rating?: number
+  deliveryTime?: string
+  cuisine?: string
+  imageUrl?: string
+}
+
+interface MenuItem {
+  id: string
+  name: string
+  description?: string
+  price: number
+  category: string
+  imageUrl?: string
+  isVegetarian?: boolean
+}
+
+interface GetRestaurantDetailsResponse {
+  restaurant: Restaurant
+  menuItems: MenuItem[]
+}
+
+interface GetRestaurantDetailsVariables {
+  id: string
+  restaurantId: string
+}
+
 export default function RestaurantDetailsPage() {
   const { id } = useParams()
-  const restaurantIdStr = Array.isArray(id) ? id[0] : id
+  const restaurantIdStr = Array.isArray(id) ? id[0] : id ?? ''
 
-  const { data, loading, error } = useQuery(GET_RESTAURANT_DETAILS, {
+  const { data, loading, error } = useQuery<
+    GetRestaurantDetailsResponse,
+    GetRestaurantDetailsVariables
+  >(GET_RESTAURANT_DETAILS, {
     variables: { id: restaurantIdStr, restaurantId: restaurantIdStr },
     skip: !restaurantIdStr,
   })
@@ -104,6 +137,7 @@ export default function RestaurantDetailsPage() {
   }, {})
 
   const handleAddToCart = (item: any) => {
+    if (!restaurant) return
     addItem({
       menuItemId: item.id,
       name: item.name,
@@ -123,10 +157,10 @@ export default function RestaurantDetailsPage() {
     <div className="min-h-screen flex flex-col bg-background pb-20">
       <Header />
 
-      <div className="bg-white border-b sticky top-16 z-30 shadow-sm backdrop-blur-md bg-white/90 supports-[backdrop-filter]:bg-white/60">
+      <div className="border-b sticky top-16 z-30 shadow-sm backdrop-blur-md bg-white/90 supports-backdrop-filter:bg-white/60">
         <div className="container py-6 space-y-4">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gray-100 flex-shrink-0 flex items-center justify-center text-4xl overflow-hidden shadow-inner">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gray-100 shrink-0 flex items-center justify-center text-4xl overflow-hidden shadow-inner">
               {restaurant?.imageUrl ? (
                 <img
                   src={restaurant.imageUrl}
@@ -193,7 +227,7 @@ export default function RestaurantDetailsPage() {
                         key={item.id}
                         className="flex flex-col sm:flex-row overflow-hidden border-border/40 hover:border-border transition-colors group"
                       >
-                        <div className="h-40 sm:w-40 sm:h-auto bg-gray-50 relative flex-shrink-0 flex items-center justify-center">
+                        <div className="h-40 sm:w-40 sm:h-auto bg-gray-50 relative shrink-0 flex items-center justify-center">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
@@ -206,7 +240,7 @@ export default function RestaurantDetailsPage() {
                             </span>
                           )}
                           {item.isVegetarian && (
-                            <div className="absolute top-2 left-2 w-5 h-5 rounded-sm border border-green-600 flex items-center justify-center bg-white p-[2px] shadow-sm">
+                            <div className="absolute top-2 left-2 w-5 h-5 rounded-sm border border-green-600 flex items-center justify-center bg-white p-0.5 shadow-sm">
                               <div className="w-full h-full rounded-full bg-green-600"></div>
                             </div>
                           )}

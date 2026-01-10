@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { MapPin, Star, Clock, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 
 const GET_RESTAURANTS = gql`
   query GetRestaurants {
@@ -34,8 +34,12 @@ interface Restaurant {
   imageUrl: string
 }
 
-export default function RestaurantsPage() {
-  const { data, loading, error } = useQuery(GET_RESTAURANTS)
+interface GetRestaurantsResponse {
+  restaurants: Restaurant[]
+}
+
+function RestaurantsContent() {
+  const { data, loading, error } = useQuery<GetRestaurantsResponse>(GET_RESTAURANTS)
   const searchParams = useSearchParams()
   const [isClient, setIsClient] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -124,7 +128,7 @@ export default function RestaurantsPage() {
             {cuisines.map((cuisine) => (
               <Button
                 key={cuisine}
-                variant={selectedCuisine === cuisine ? 'default' : 'outline'}
+                variant={selectedCuisine === cuisine ? 'primary' : 'outline'}
                 className="rounded-full"
                 onClick={() => setSelectedCuisine(cuisine)}
                 size="sm"
@@ -202,7 +206,7 @@ export default function RestaurantsPage() {
                   >
                     <Card className="border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full">
                       <div className="relative h-48 bg-gray-100 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
                         <div className="absolute bottom-4 left-4 z-20 text-white">
                           <h3 className="font-bold text-xl drop-shadow-md">
                             {restaurant.name}
@@ -258,5 +262,28 @@ export default function RestaurantsPage() {
       </main>
       <Footer />
     </div>
+  )
+}
+
+export default function RestaurantsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 container py-12">
+          <div className="grid md:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="h-64 rounded-3xl bg-muted animate-pulse"
+              />
+            ))}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <RestaurantsContent />
+    </Suspense>
   )
 }

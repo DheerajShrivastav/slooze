@@ -89,8 +89,12 @@ interface Order {
   }[]
 }
 
+interface GetMyOrdersResponse {
+  myOrders: Order[]
+}
+
 export default function OrdersPage() {
-  const { data, loading, error } = useQuery(GET_MY_ORDERS)
+  const { data, loading, error } = useQuery<GetMyOrdersResponse>(GET_MY_ORDERS)
   const [isClient, setIsClient] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [showReceipt, setShowReceipt] = useState(false)

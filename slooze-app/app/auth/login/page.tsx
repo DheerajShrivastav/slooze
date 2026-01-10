@@ -9,6 +9,26 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+interface LoginResponse {
+  login: {
+    token: string
+    user: {
+      id: string
+      email: string
+      name: string
+      role: string
+      country: string
+    }
+  }
+}
+
+interface LoginInput {
+  input: {
+    email: string
+    password: string
+  }
+}
+
 const LOGIN_MUTATION = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
@@ -27,7 +47,9 @@ const LOGIN_MUTATION = gql`
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [login, { loading, error }] = useMutation(LOGIN_MUTATION)
+  const [login, { loading, error }] = useMutation<LoginResponse, LoginInput>(
+    LOGIN_MUTATION
+  )
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {

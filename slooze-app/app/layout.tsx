@@ -24,7 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable} antialiased bg-cream text-onyx`}>
+      <body
+        className={`${nunito.variable} antialiased bg-cream text-onyx`}
+        suppressHydrationWarning={true}
+      >
         <ApolloWrapper>
           <AuthProvider>
             <CartProvider>
