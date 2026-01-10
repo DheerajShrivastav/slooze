@@ -39,7 +39,8 @@ interface GetRestaurantsResponse {
 }
 
 function RestaurantsContent() {
-  const { data, loading, error } = useQuery<GetRestaurantsResponse>(GET_RESTAURANTS)
+  const { data, loading, error } =
+    useQuery<GetRestaurantsResponse>(GET_RESTAURANTS)
   const searchParams = useSearchParams()
   const [isClient, setIsClient] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -267,22 +268,24 @@ function RestaurantsContent() {
 
 export default function RestaurantsPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex flex-col bg-background">
-        <Header />
-        <main className="flex-1 container py-12">
-          <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="h-64 rounded-3xl bg-muted animate-pulse"
-              />
-            ))}
-          </div>
-        </main>
-        <Footer />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col bg-background">
+          <Header />
+          <main className="flex-1 container py-12">
+            <div className="grid md:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="h-64 rounded-3xl bg-muted animate-pulse"
+                />
+              ))}
+            </div>
+          </main>
+          <Footer />
+        </div>
+      }
+    >
       <RestaurantsContent />
     </Suspense>
   )
