@@ -1,24 +1,24 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { gql } from "@apollo/client";
-import { useQuery, useMutation } from "@apollo/client/react";
-import { 
-  Search, 
-  Filter, 
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { gql } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client/react'
+import {
+  Search,
+  Filter,
   Edit,
   Loader2,
   RefreshCw,
   XCircle,
   Shield,
   User,
-  Globe
-} from "lucide-react";
-import { toast } from "sonner";
-import { clsx } from "clsx";
+  Globe,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import { clsx } from 'clsx'
 
 const GET_ALL_USERS = gql`
   query GetAllUsers($role: Role, $country: Country) {
@@ -32,7 +32,7 @@ const GET_ALL_USERS = gql`
       updatedAt
     }
   }
-`;
+`
 
 const UPDATE_USER_ROLE = gql`
   mutation UpdateUserRole($userId: String!, $role: Role!) {
@@ -41,7 +41,7 @@ const UPDATE_USER_ROLE = gql`
       role
     }
   }
-`;
+`
 
 const UPDATE_USER_COUNTRY = gql`
   mutation UpdateUserCountry($userId: String!, $country: Country!) {
@@ -50,98 +50,104 @@ const UPDATE_USER_COUNTRY = gql`
       country
     }
   }
-`;
+`
 
 interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  country: string;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  email: string
+  name: string
+  role: string
+  country: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface UsersData {
-  users: User[];
+  users: User[]
 }
 
 const roleOptions = [
-  { value: "", label: "All Roles" },
-  { value: "ADMIN", label: "Admin" },
-  { value: "MANAGER", label: "Manager" },
-  { value: "MEMBER", label: "Member" },
-];
+  { value: '', label: 'All Roles' },
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'MANAGER', label: 'Manager' },
+  { value: 'MEMBER', label: 'Member' },
+]
 
 const countryOptions = [
-  { value: "", label: "All Countries" },
-  { value: "INDIA", label: "India" },
-  { value: "AMERICA", label: "America" },
-];
+  { value: '', label: 'All Countries' },
+  { value: 'INDIA', label: 'India' },
+  { value: 'AMERICA', label: 'America' },
+]
 
 const roleColors: Record<string, string> = {
-  ADMIN: "bg-red-100 text-red-700",
-  MANAGER: "bg-blue-100 text-blue-700",
-  MEMBER: "bg-gray-100 text-gray-700",
-};
+  ADMIN: 'bg-red-100 text-red-700',
+  MANAGER: 'bg-blue-100 text-blue-700',
+  MEMBER: 'bg-gray-100 text-gray-700',
+}
 
 const roleIcons: Record<string, React.ReactNode> = {
   ADMIN: <Shield size={14} />,
   MANAGER: <Shield size={14} />,
   MEMBER: <User size={14} />,
-};
+}
 
 export default function AdminUsersPage() {
-  const [roleFilter, setRoleFilter] = useState("");
-  const [countryFilter, setCountryFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [editingUser, setEditingUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ role: "", country: "" });
+  const [roleFilter, setRoleFilter] = useState('')
+  const [countryFilter, setCountryFilter] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [editingUser, setEditingUser] = useState<any>(null)
+  const [editForm, setEditForm] = useState({ role: '', country: '' })
 
   const { data, loading, refetch } = useQuery<UsersData>(GET_ALL_USERS, {
-    variables: { 
+    variables: {
       role: roleFilter || null,
-      country: countryFilter || null
+      country: countryFilter || null,
     },
-    fetchPolicy: "network-only",
-  });
+    fetchPolicy: 'network-only',
+  })
 
-  const [updateUserRole, { loading: roleLoading }] = useMutation(UPDATE_USER_ROLE, {
-    onCompleted: () => {
-      toast.success("User role updated successfully");
-      refetch();
-      setEditingUser(null);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [updateUserRole, { loading: roleLoading }] = useMutation(
+    UPDATE_USER_ROLE,
+    {
+      onCompleted: () => {
+        toast.success('User role updated successfully')
+        refetch()
+        setEditingUser(null)
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
-  const [updateUserCountry, { loading: countryLoading }] = useMutation(UPDATE_USER_COUNTRY, {
-    onCompleted: () => {
-      toast.success("User country updated successfully");
-      refetch();
-      setEditingUser(null);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [updateUserCountry, { loading: countryLoading }] = useMutation(
+    UPDATE_USER_COUNTRY,
+    {
+      onCompleted: () => {
+        toast.success('User country updated successfully')
+        refetch()
+        setEditingUser(null)
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
-  const users = data?.users || [];
+  const users = data?.users || []
 
   const filteredUsers = users.filter((user: any) => {
-    if (!searchQuery) return true;
+    if (!searchQuery) return true
     return (
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+    )
+  })
 
   const openEditModal = (user: any) => {
-    setEditForm({ role: user.role, country: user.country });
-    setEditingUser(user);
-  };
+    setEditForm({ role: user.role, country: user.country })
+    setEditingUser(user)
+  }
 
   const handleUpdateRole = () => {
     if (editForm.role !== editingUser.role) {
@@ -150,9 +156,9 @@ export default function AdminUsersPage() {
           userId: editingUser.id,
           role: editForm.role,
         },
-      });
+      })
     }
-  };
+  }
 
   const handleUpdateCountry = () => {
     if (editForm.country !== editingUser.country) {
@@ -161,21 +167,24 @@ export default function AdminUsersPage() {
           userId: editingUser.id,
           country: editForm.country,
         },
-      });
+      })
     }
-  };
+  }
 
   const handleSave = () => {
     if (editForm.role !== editingUser.role) {
-      handleUpdateRole();
+      handleUpdateRole()
     }
     if (editForm.country !== editingUser.country) {
-      handleUpdateCountry();
+      handleUpdateCountry()
     }
-    if (editForm.role === editingUser.role && editForm.country === editingUser.country) {
-      setEditingUser(null);
+    if (
+      editForm.role === editingUser.role &&
+      editForm.country === editingUser.country
+    ) {
+      setEditingUser(null)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -198,7 +207,10 @@ export default function AdminUsersPage() {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                size={18}
+              />
               <Input
                 placeholder="Search by name or email..."
                 className="pl-10"
@@ -254,7 +266,7 @@ export default function AdminUsersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Admins</p>
                 <p className="text-2xl font-bold">
-                  {users.filter((u: any) => u.role === "ADMIN").length}
+                  {users.filter((u: any) => u.role === 'ADMIN').length}
                 </p>
               </div>
               <Shield className="text-red-500" size={24} />
@@ -267,7 +279,7 @@ export default function AdminUsersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Managers</p>
                 <p className="text-2xl font-bold">
-                  {users.filter((u: any) => u.role === "MANAGER").length}
+                  {users.filter((u: any) => u.role === 'MANAGER').length}
                 </p>
               </div>
               <Shield className="text-blue-500" size={24} />
@@ -280,7 +292,7 @@ export default function AdminUsersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Members</p>
                 <p className="text-2xl font-bold">
-                  {users.filter((u: any) => u.role === "MEMBER").length}
+                  {users.filter((u: any) => u.role === 'MEMBER').length}
                 </p>
               </div>
               <User className="text-gray-500" size={24} />
@@ -308,9 +320,15 @@ export default function AdminUsersPage() {
                     <th className="text-left p-4 font-medium text-sm">User</th>
                     <th className="text-left p-4 font-medium text-sm">Email</th>
                     <th className="text-left p-4 font-medium text-sm">Role</th>
-                    <th className="text-left p-4 font-medium text-sm">Country</th>
-                    <th className="text-left p-4 font-medium text-sm">Joined</th>
-                    <th className="text-left p-4 font-medium text-sm">Actions</th>
+                    <th className="text-left p-4 font-medium text-sm">
+                      Country
+                    </th>
+                    <th className="text-left p-4 font-medium text-sm">
+                      Joined
+                    </th>
+                    <th className="text-left p-4 font-medium text-sm">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -319,7 +337,7 @@ export default function AdminUsersPage() {
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {user.name?.[0] || "U"}
+                            {user.name?.[0] || 'U'}
                           </div>
                           <span className="font-medium">{user.name}</span>
                         </div>
@@ -330,7 +348,7 @@ export default function AdminUsersPage() {
                       <td className="p-4">
                         <span
                           className={clsx(
-                            "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
+                            'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
                             roleColors[user.role]
                           )}
                         >
@@ -372,7 +390,11 @@ export default function AdminUsersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Edit User</h2>
-                <Button variant="ghost" size="sm" onClick={() => setEditingUser(null)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingUser(null)}
+                >
                   <XCircle size={20} />
                 </Button>
               </div>
@@ -380,11 +402,13 @@ export default function AdminUsersPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {editingUser.name?.[0] || "U"}
+                    {editingUser.name?.[0] || 'U'}
                   </div>
                   <div>
                     <p className="font-medium">{editingUser.name}</p>
-                    <p className="text-sm text-muted-foreground">{editingUser.email}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {editingUser.email}
+                    </p>
                   </div>
                 </div>
 
@@ -392,7 +416,9 @@ export default function AdminUsersPage() {
                   <label className="text-sm font-medium">Role</label>
                   <select
                     value={editForm.role}
-                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, role: e.target.value })
+                    }
                     className="w-full px-3 py-2 border rounded-lg bg-background text-sm mt-1"
                   >
                     <option value="ADMIN">Admin</option>
@@ -400,7 +426,8 @@ export default function AdminUsersPage() {
                     <option value="MEMBER">Member</option>
                   </select>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Admins have full access. Managers can manage orders. Members are regular users.
+                    Admins have full access. Managers can manage orders. Members
+                    are regular users.
                   </p>
                 </div>
 
@@ -408,29 +435,32 @@ export default function AdminUsersPage() {
                   <label className="text-sm font-medium">Country</label>
                   <select
                     value={editForm.country}
-                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, country: e.target.value })
+                    }
                     className="w-full px-3 py-2 border rounded-lg bg-background text-sm mt-1"
                   >
                     <option value="INDIA">India</option>
                     <option value="AMERICA">America</option>
                   </select>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Users can only access restaurants in their country (unless Admin).
+                    Users can only access restaurants in their country (unless
+                    Admin).
                   </p>
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setEditingUser(null)} 
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingUser(null)}
                     className="flex-1"
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    onClick={handleSave} 
-                    className="flex-1" 
+                  <Button
+                    onClick={handleSave}
+                    className="flex-1"
                     disabled={roleLoading || countryLoading}
                   >
                     {(roleLoading || countryLoading) && (
@@ -445,5 +475,5 @@ export default function AdminUsersPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -393,7 +393,9 @@ export class OrdersService {
     }
 
     if (order.status !== 'DRAFT' && order.status !== 'PENDING') {
-      throw new BadRequestException('Can only process payment for draft or pending orders')
+      throw new BadRequestException(
+        'Can only process payment for draft or pending orders'
+      )
     }
 
     // Verify payment method exists

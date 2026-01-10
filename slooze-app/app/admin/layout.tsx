@@ -1,79 +1,99 @@
-"use client";
+'use client'
 
-import { useAuth } from "@/lib/auth-context";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { 
-  LayoutDashboard, 
-  ShoppingCart, 
-  UtensilsCrossed, 
-  CreditCard, 
-  Users, 
+import { useAuth } from '@/lib/auth-context'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  UtensilsCrossed,
+  CreditCard,
+  Users,
   LogOut,
   ChevronLeft,
   Menu,
-  Home
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { clsx } from "clsx";
+  Home,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { clsx } from 'clsx'
 
 const adminNavItems = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard", roles: ["ADMIN", "MANAGER"] },
-  { href: "/admin/orders", icon: ShoppingCart, label: "Orders", roles: ["ADMIN", "MANAGER"] },
-  { href: "/admin/menu-items", icon: UtensilsCrossed, label: "Menu Items", roles: ["ADMIN"] },
-  { href: "/admin/payment-methods", icon: CreditCard, label: "Payment Methods", roles: ["ADMIN"] },
-  { href: "/admin/users", icon: Users, label: "Users", roles: ["ADMIN"] },
-];
+  {
+    href: '/admin',
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    roles: ['ADMIN', 'MANAGER'],
+  },
+  {
+    href: '/admin/orders',
+    icon: ShoppingCart,
+    label: 'Orders',
+    roles: ['ADMIN', 'MANAGER'],
+  },
+  {
+    href: '/admin/menu-items',
+    icon: UtensilsCrossed,
+    label: 'Menu Items',
+    roles: ['ADMIN'],
+  },
+  {
+    href: '/admin/payment-methods',
+    icon: CreditCard,
+    label: 'Payment Methods',
+    roles: ['ADMIN'],
+  },
+  { href: '/admin/users', icon: Users, label: 'Users', roles: ['ADMIN'] },
+]
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const { user, isAuthenticated, logout } = useAuth();
-  const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isAuthenticated, logout } = useAuth()
+  const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Check authentication and role
     if (!isAuthenticated) {
-      router.push("/auth/login?redirect=/admin");
-      return;
+      router.push('/auth/login?redirect=/admin')
+      return
     }
-    
-    if (user && user.role !== "ADMIN" && user.role !== "MANAGER") {
-      router.push("/");
-      return;
+
+    if (user && user.role !== 'ADMIN' && user.role !== 'MANAGER') {
+      router.push('/')
+      return
     }
-    
-    setIsLoading(false);
-  }, [isAuthenticated, user, router]);
+
+    setIsLoading(false)
+  }, [isAuthenticated, user, router])
 
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
-  if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
-    return null;
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'MANAGER')) {
+    return null
   }
 
-  const filteredNavItems = adminNavItems.filter(item => 
+  const filteredNavItems = adminNavItems.filter((item) =>
     item.roles.includes(user.role)
-  );
+  )
 
   return (
     <div className="flex h-screen bg-muted/30">
       {/* Sidebar */}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex flex-col bg-background border-r transition-all duration-300",
-          sidebarOpen ? "w-64" : "w-16"
+          'fixed inset-y-0 left-0 z-50 flex flex-col bg-background border-r transition-all duration-300',
+          sidebarOpen ? 'w-64' : 'w-16'
         )}
       >
         {/* Logo */}
@@ -103,9 +123,9 @@ export default function AdminLayout({
               key={item.href}
               href={item.href}
               className={clsx(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                "hover:bg-primary/10 hover:text-primary",
-                "text-muted-foreground"
+                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'hover:bg-primary/10 hover:text-primary',
+                'text-muted-foreground'
               )}
             >
               <item.icon size={20} />
@@ -119,8 +139,8 @@ export default function AdminLayout({
           <Link
             href="/"
             className={clsx(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              "hover:bg-muted text-muted-foreground"
+              'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'hover:bg-muted text-muted-foreground'
             )}
           >
             <Home size={20} />
@@ -129,8 +149,8 @@ export default function AdminLayout({
           <button
             onClick={logout}
             className={clsx(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full",
-              "hover:bg-red-50 hover:text-red-600 text-muted-foreground"
+              'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full',
+              'hover:bg-red-50 hover:text-red-600 text-muted-foreground'
             )}
           >
             <LogOut size={20} />
@@ -157,12 +177,12 @@ export default function AdminLayout({
       {/* Main content */}
       <main
         className={clsx(
-          "flex-1 transition-all duration-300 overflow-auto",
-          sidebarOpen ? "ml-64" : "ml-16"
+          'flex-1 transition-all duration-300 overflow-auto',
+          sidebarOpen ? 'ml-64' : 'ml-16'
         )}
       >
         <div className="p-6">{children}</div>
       </main>
     </div>
-  );
+  )
 }

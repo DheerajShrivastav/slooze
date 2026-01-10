@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { gql } from "@apollo/client";
-import { useQuery, useMutation } from "@apollo/client/react";
-import { 
-  Search, 
-  Filter, 
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { gql } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client/react'
+import {
+  Search,
+  Filter,
   Eye,
   CheckCircle,
   XCircle,
@@ -21,13 +21,17 @@ import {
   User,
   UtensilsCrossed,
   DollarSign,
-  Package
-} from "lucide-react";
-import { toast } from "sonner";
-import { clsx } from "clsx";
+  Package,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import { clsx } from 'clsx'
 
 const GET_ALL_ORDERS = gql`
-  query GetAllOrders($status: OrderStatus, $userId: String, $restaurantId: String) {
+  query GetAllOrders(
+    $status: OrderStatus
+    $userId: String
+    $restaurantId: String
+  ) {
     orders(status: $status, userId: $userId, restaurantId: $restaurantId) {
       id
       userId
@@ -71,7 +75,7 @@ const GET_ALL_ORDERS = gql`
       }
     }
   }
-`;
+`
 
 const GET_PAYMENT_METHODS = gql`
   query GetAvailablePaymentMethods {
@@ -82,7 +86,7 @@ const GET_PAYMENT_METHODS = gql`
       last4Digits
     }
   }
-`;
+`
 
 const UPDATE_ORDER_STATUS = gql`
   mutation UpdateOrderStatus($input: UpdateOrderStatusInput!) {
@@ -91,7 +95,7 @@ const UPDATE_ORDER_STATUS = gql`
       status
     }
   }
-`;
+`
 
 const ADMIN_PROCESS_PAYMENT = gql`
   mutation AdminProcessPayment($input: AdminProcessPaymentInput!) {
@@ -102,7 +106,7 @@ const ADMIN_PROCESS_PAYMENT = gql`
       paymentMethodId
     }
   }
-`;
+`
 
 const CANCEL_ORDER = gql`
   mutation CancelOrder($orderId: String!) {
@@ -111,85 +115,85 @@ const CANCEL_ORDER = gql`
       status
     }
   }
-`;
+`
 
 interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  category: string;
+  id: string
+  name: string
+  description: string
+  imageUrl: string
+  category: string
 }
 
 interface OrderItem {
-  id: string;
-  menuItemId: string;
-  quantity: number;
-  priceAtOrder: number;
-  menuItem: MenuItem | null;
+  id: string
+  menuItemId: string
+  quantity: number
+  priceAtOrder: number
+  menuItem: MenuItem | null
 }
 
 interface UserInfo {
-  id: string;
-  name: string;
-  email: string;
-  country: string;
+  id: string
+  name: string
+  email: string
+  country: string
 }
 
 interface Restaurant {
-  id: string;
-  name: string;
-  imageUrl: string;
+  id: string
+  name: string
+  imageUrl: string
 }
 
 interface PaymentMethod {
-  id: string;
-  type: string;
-  provider: string;
-  last4Digits: string;
+  id: string
+  type: string
+  provider: string
+  last4Digits: string
 }
 
 interface Order {
-  id: string;
-  userId: string;
-  restaurantId: string;
-  status: string;
-  totalAmount: number;
-  deliveryAddress: string | null;
-  paymentMethodId: string | null;
-  paidAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  user: UserInfo | null;
-  restaurant: Restaurant | null;
-  paymentMethod: PaymentMethod | null;
-  orderItems: OrderItem[];
+  id: string
+  userId: string
+  restaurantId: string
+  status: string
+  totalAmount: number
+  deliveryAddress: string | null
+  paymentMethodId: string | null
+  paidAt: string | null
+  createdAt: string
+  updatedAt: string
+  user: UserInfo | null
+  restaurant: Restaurant | null
+  paymentMethod: PaymentMethod | null
+  orderItems: OrderItem[]
 }
 
 interface OrdersData {
-  orders: Order[];
+  orders: Order[]
 }
 
 interface PaymentMethodsData {
-  availablePaymentMethods: PaymentMethod[];
+  availablePaymentMethods: PaymentMethod[]
 }
 
 const statusOptions = [
-  { value: "", label: "All Status" },
-  { value: "DRAFT", label: "Draft" },
-  { value: "PENDING", label: "Pending" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "DELIVERED", label: "Delivered" },
-  { value: "CANCELLED", label: "Cancelled" },
-];
+  { value: '', label: 'All Status' },
+  { value: 'DRAFT', label: 'Draft' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'CONFIRMED', label: 'Confirmed' },
+  { value: 'DELIVERED', label: 'Delivered' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+]
 
 const statusColors: Record<string, string> = {
-  DRAFT: "bg-gray-100 text-gray-700 border-gray-200",
-  PENDING: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  CONFIRMED: "bg-blue-100 text-blue-700 border-blue-200",
-  DELIVERED: "bg-green-100 text-green-700 border-green-200",
-  CANCELLED: "bg-red-100 text-red-700 border-red-200",
-};
+  DRAFT: 'bg-gray-100 text-gray-700 border-gray-200',
+  PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  CONFIRMED: 'bg-blue-100 text-blue-700 border-blue-200',
+  DELIVERED: 'bg-green-100 text-green-700 border-green-200',
+  CANCELLED: 'bg-red-100 text-red-700 border-red-200',
+}
 
 const statusIcons: Record<string, React.ReactNode> = {
   DRAFT: <Clock size={14} />,
@@ -197,81 +201,88 @@ const statusIcons: Record<string, React.ReactNode> = {
   CONFIRMED: <CheckCircle size={14} />,
   DELIVERED: <Truck size={14} />,
   CANCELLED: <XCircle size={14} />,
-};
+}
 
 export default function AdminOrdersPage() {
-  const [statusFilter, setStatusFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("");
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('')
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
 
   const { data, loading, refetch } = useQuery<OrdersData>(GET_ALL_ORDERS, {
     variables: { status: statusFilter || null },
-    fetchPolicy: "network-only",
-  });
+    fetchPolicy: 'network-only',
+  })
 
-  const { data: paymentMethodsData } = useQuery<PaymentMethodsData>(GET_PAYMENT_METHODS);
+  const { data: paymentMethodsData } =
+    useQuery<PaymentMethodsData>(GET_PAYMENT_METHODS)
 
-  const [updateOrderStatus, { loading: updateLoading }] = useMutation(UPDATE_ORDER_STATUS, {
-    onCompleted: () => {
-      toast.success("Order status updated successfully");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [updateOrderStatus, { loading: updateLoading }] = useMutation(
+    UPDATE_ORDER_STATUS,
+    {
+      onCompleted: () => {
+        toast.success('Order status updated successfully')
+        refetch()
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
-  const [adminProcessPayment, { loading: paymentLoading }] = useMutation(ADMIN_PROCESS_PAYMENT, {
-    onCompleted: () => {
-      toast.success("Payment processed successfully! Order confirmed.");
-      refetch();
-      setShowPaymentModal(false);
-      setSelectedPaymentMethod("");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [adminProcessPayment, { loading: paymentLoading }] = useMutation(
+    ADMIN_PROCESS_PAYMENT,
+    {
+      onCompleted: () => {
+        toast.success('Payment processed successfully! Order confirmed.')
+        refetch()
+        setShowPaymentModal(false)
+        setSelectedPaymentMethod('')
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
   const [cancelOrder, { loading: cancelLoading }] = useMutation(CANCEL_ORDER, {
     onCompleted: () => {
-      toast.success("Order cancelled successfully");
-      refetch();
-      setSelectedOrder(null);
+      toast.success('Order cancelled successfully')
+      refetch()
+      setSelectedOrder(null)
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(error.message)
     },
-  });
+  })
 
-  const orders = data?.orders || [];
-  const paymentMethods = paymentMethodsData?.availablePaymentMethods || [];
+  const orders = data?.orders || []
+  const paymentMethods = paymentMethodsData?.availablePaymentMethods || []
 
   const filteredOrders = orders.filter((order) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
     return (
       order.id.toLowerCase().includes(query) ||
       order.user?.name?.toLowerCase().includes(query) ||
       order.user?.email?.toLowerCase().includes(query) ||
       order.restaurant?.name?.toLowerCase().includes(query)
-    );
-  });
+    )
+  })
 
   const handleStatusChange = (orderId: string, newStatus: string) => {
     updateOrderStatus({
       variables: {
         input: { orderId, status: newStatus },
       },
-    });
-  };
+    })
+  }
 
   const handleProcessPayment = () => {
     if (!selectedOrder || !selectedPaymentMethod) {
-      toast.error("Please select a payment method");
-      return;
+      toast.error('Please select a payment method')
+      return
     }
     adminProcessPayment({
       variables: {
@@ -280,20 +291,20 @@ export default function AdminOrdersPage() {
           paymentMethodId: selectedPaymentMethod,
         },
       },
-    });
-  };
+    })
+  }
 
   const handleCancelOrder = (orderId: string) => {
-    if (confirm("Are you sure you want to cancel this order?")) {
-      cancelOrder({ variables: { orderId } });
+    if (confirm('Are you sure you want to cancel this order?')) {
+      cancelOrder({ variables: { orderId } })
     }
-  };
+  }
 
   const openPaymentModal = (order: Order) => {
-    setSelectedOrder(order);
-    setSelectedPaymentMethod(order.paymentMethodId || "");
-    setShowPaymentModal(true);
-  };
+    setSelectedOrder(order)
+    setSelectedPaymentMethod(order.paymentMethodId || '')
+    setShowPaymentModal(true)
+  }
 
   return (
     <div className="space-y-6">
@@ -314,25 +325,31 @@ export default function AdminOrdersPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {statusOptions.slice(1).map((status) => {
-          const count = orders.filter((o) => o.status === status.value).length;
+          const count = orders.filter((o) => o.status === status.value).length
           return (
             <Card
               key={status.value}
               className={clsx(
-                "cursor-pointer transition-all hover:shadow-md",
-                statusFilter === status.value && "ring-2 ring-primary"
+                'cursor-pointer transition-all hover:shadow-md',
+                statusFilter === status.value && 'ring-2 ring-primary'
               )}
-              onClick={() => setStatusFilter(statusFilter === status.value ? "" : status.value)}
+              onClick={() =>
+                setStatusFilter(
+                  statusFilter === status.value ? '' : status.value
+                )
+              }
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{status.label}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {status.label}
+                  </span>
                   {statusIcons[status.value]}
                 </div>
                 <p className="text-2xl font-bold mt-1">{count}</p>
               </CardContent>
             </Card>
-          );
+          )
         })}
       </div>
 
@@ -341,7 +358,10 @@ export default function AdminOrdersPage() {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                size={18}
+              />
               <Input
                 placeholder="Search by customer name, email, or restaurant..."
                 className="pl-10"
@@ -382,7 +402,10 @@ export default function AdminOrdersPage() {
       ) : (
         <div className="space-y-4">
           {filteredOrders.map((order) => (
-            <Card key={order.id} className="overflow-hidden hover:shadow-md transition-shadow">
+            <Card
+              key={order.id}
+              className="overflow-hidden hover:shadow-md transition-shadow"
+            >
               <CardContent className="p-0">
                 <div className="flex flex-col lg:flex-row">
                   {/* Order Info */}
@@ -395,7 +418,7 @@ export default function AdminOrdersPage() {
                           </span>
                           <span
                             className={clsx(
-                              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border",
+                              'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border',
                               statusColors[order.status]
                             )}
                           >
@@ -417,34 +440,53 @@ export default function AdminOrdersPage() {
                       <div className="flex items-center gap-2 text-sm">
                         <User size={16} className="text-muted-foreground" />
                         <div>
-                          <p className="font-medium">{order.user?.name || "Unknown"}</p>
-                          <p className="text-xs text-muted-foreground">{order.user?.email}</p>
+                          <p className="font-medium">
+                            {order.user?.name || 'Unknown'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {order.user?.email}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        <UtensilsCrossed size={16} className="text-muted-foreground" />
-                        <p className="font-medium">{order.restaurant?.name || "Unknown Restaurant"}</p>
+                        <UtensilsCrossed
+                          size={16}
+                          className="text-muted-foreground"
+                        />
+                        <p className="font-medium">
+                          {order.restaurant?.name || 'Unknown Restaurant'}
+                        </p>
                       </div>
                     </div>
 
                     {/* Delivery Address */}
                     {order.deliveryAddress && (
                       <div className="flex items-start gap-2 text-sm mb-3">
-                        <MapPin size={16} className="text-muted-foreground mt-0.5" />
-                        <p className="text-muted-foreground">{order.deliveryAddress}</p>
+                        <MapPin
+                          size={16}
+                          className="text-muted-foreground mt-0.5"
+                        />
+                        <p className="text-muted-foreground">
+                          {order.deliveryAddress}
+                        </p>
                       </div>
                     )}
 
                     {/* Payment Info */}
                     {order.paymentMethod && (
                       <div className="flex items-center gap-2 text-sm mb-3">
-                        <CreditCard size={16} className="text-muted-foreground" />
+                        <CreditCard
+                          size={16}
+                          className="text-muted-foreground"
+                        />
                         <span className="text-muted-foreground">
-                          {order.paymentMethod.provider} •••• {order.paymentMethod.last4Digits}
+                          {order.paymentMethod.provider} ••••{' '}
+                          {order.paymentMethod.last4Digits}
                         </span>
                         {order.paidAt && (
                           <span className="text-green-600 text-xs">
-                            Paid on {new Date(order.paidAt).toLocaleDateString()}
+                            Paid on{' '}
+                            {new Date(order.paidAt).toLocaleDateString()}
                           </span>
                         )}
                       </div>
@@ -465,7 +507,8 @@ export default function AdminOrdersPage() {
                             />
                           )}
                           <span className="text-xs">
-                            {item.quantity}× {item.menuItem?.name || "Unknown Item"}
+                            {item.quantity}×{' '}
+                            {item.menuItem?.name || 'Unknown Item'}
                           </span>
                         </div>
                       ))}
@@ -489,22 +532,25 @@ export default function AdminOrdersPage() {
                       Details
                     </Button>
 
-                    {(order.status === "DRAFT" || order.status === "PENDING") && !order.paidAt && (
-                      <Button
-                        size="sm"
-                        className="flex-1 lg:flex-none bg-green-600 hover:bg-green-700"
-                        onClick={() => openPaymentModal(order)}
-                      >
-                        <DollarSign size={14} className="mr-1" />
-                        Process Payment
-                      </Button>
-                    )}
+                    {(order.status === 'DRAFT' || order.status === 'PENDING') &&
+                      !order.paidAt && (
+                        <Button
+                          size="sm"
+                          className="flex-1 lg:flex-none bg-green-600 hover:bg-green-700"
+                          onClick={() => openPaymentModal(order)}
+                        >
+                          <DollarSign size={14} className="mr-1" />
+                          Process Payment
+                        </Button>
+                      )}
 
-                    {order.status === "CONFIRMED" && (
+                    {order.status === 'CONFIRMED' && (
                       <Button
                         size="sm"
                         className="flex-1 lg:flex-none"
-                        onClick={() => handleStatusChange(order.id, "DELIVERED")}
+                        onClick={() =>
+                          handleStatusChange(order.id, 'DELIVERED')
+                        }
                         disabled={updateLoading}
                       >
                         <Truck size={14} className="mr-1" />
@@ -512,18 +558,19 @@ export default function AdminOrdersPage() {
                       </Button>
                     )}
 
-                    {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="flex-1 lg:flex-none"
-                        onClick={() => handleCancelOrder(order.id)}
-                        disabled={cancelLoading}
-                      >
-                        <XCircle size={14} className="mr-1" />
-                        Cancel
-                      </Button>
-                    )}
+                    {order.status !== 'DELIVERED' &&
+                      order.status !== 'CANCELLED' && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="flex-1 lg:flex-none"
+                          onClick={() => handleCancelOrder(order.id)}
+                          disabled={cancelLoading}
+                        >
+                          <XCircle size={14} className="mr-1" />
+                          Cancel
+                        </Button>
+                      )}
                   </div>
                 </div>
               </CardContent>
@@ -544,7 +591,11 @@ export default function AdminOrdersPage() {
                     #{selectedOrder.id}
                   </p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(null)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedOrder(null)}
+                >
                   <XCircle size={20} />
                 </Button>
               </div>
@@ -554,7 +605,7 @@ export default function AdminOrdersPage() {
                 <div className="flex items-center justify-between">
                   <span
                     className={clsx(
-                      "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border",
+                      'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border',
                       statusColors[selectedOrder.status]
                     )}
                   >
@@ -575,19 +626,27 @@ export default function AdminOrdersPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">Name</p>
-                      <p className="font-medium">{selectedOrder.user?.name || "N/A"}</p>
+                      <p className="font-medium">
+                        {selectedOrder.user?.name || 'N/A'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Email</p>
-                      <p className="font-medium">{selectedOrder.user?.email || "N/A"}</p>
+                      <p className="font-medium">
+                        {selectedOrder.user?.email || 'N/A'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Country</p>
-                      <p className="font-medium">{selectedOrder.user?.country || "N/A"}</p>
+                      <p className="font-medium">
+                        {selectedOrder.user?.country || 'N/A'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Delivery Address</p>
-                      <p className="font-medium">{selectedOrder.deliveryAddress || "Not provided"}</p>
+                      <p className="font-medium">
+                        {selectedOrder.deliveryAddress || 'Not provided'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -606,7 +665,9 @@ export default function AdminOrdersPage() {
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                     )}
-                    <p className="font-medium">{selectedOrder.restaurant?.name || "Unknown"}</p>
+                    <p className="font-medium">
+                      {selectedOrder.restaurant?.name || 'Unknown'}
+                    </p>
                   </div>
                 </div>
 
@@ -621,18 +682,32 @@ export default function AdminOrdersPage() {
                       <div>
                         <p className="text-muted-foreground">Method</p>
                         <p className="font-medium">
-                          {selectedOrder.paymentMethod.provider} •••• {selectedOrder.paymentMethod.last4Digits}
+                          {selectedOrder.paymentMethod.provider} ••••{' '}
+                          {selectedOrder.paymentMethod.last4Digits}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Status</p>
-                        <p className={clsx("font-medium", selectedOrder.paidAt ? "text-green-600" : "text-yellow-600")}>
-                          {selectedOrder.paidAt ? `Paid on ${new Date(selectedOrder.paidAt).toLocaleString()}` : "Pending"}
+                        <p
+                          className={clsx(
+                            'font-medium',
+                            selectedOrder.paidAt
+                              ? 'text-green-600'
+                              : 'text-yellow-600'
+                          )}
+                        >
+                          {selectedOrder.paidAt
+                            ? `Paid on ${new Date(
+                                selectedOrder.paidAt
+                              ).toLocaleString()}`
+                            : 'Pending'}
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No payment method selected</p>
+                    <p className="text-sm text-muted-foreground">
+                      No payment method selected
+                    </p>
                   )}
                 </div>
 
@@ -656,17 +731,24 @@ export default function AdminOrdersPage() {
                           />
                         ) : (
                           <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                            <UtensilsCrossed size={20} className="text-muted-foreground" />
+                            <UtensilsCrossed
+                              size={20}
+                              className="text-muted-foreground"
+                            />
                           </div>
                         )}
                         <div className="flex-1">
-                          <p className="font-medium">{item.menuItem?.name || "Unknown Item"}</p>
+                          <p className="font-medium">
+                            {item.menuItem?.name || 'Unknown Item'}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {item.menuItem?.category || "Uncategorized"}
+                            {item.menuItem?.category || 'Uncategorized'}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${(item.priceAtOrder * item.quantity).toFixed(2)}</p>
+                          <p className="font-medium">
+                            ${(item.priceAtOrder * item.quantity).toFixed(2)}
+                          </p>
                           <p className="text-xs text-muted-foreground">
                             {item.quantity} × ${item.priceAtOrder.toFixed(2)}
                           </p>
@@ -677,53 +759,68 @@ export default function AdminOrdersPage() {
                 </div>
 
                 {/* Actions */}
-                {selectedOrder.status !== "CANCELLED" && selectedOrder.status !== "DELIVERED" && (
-                  <div className="pt-4 border-t flex flex-wrap gap-2">
-                    {(selectedOrder.status === "DRAFT" || selectedOrder.status === "PENDING") && !selectedOrder.paidAt && (
+                {selectedOrder.status !== 'CANCELLED' &&
+                  selectedOrder.status !== 'DELIVERED' && (
+                    <div className="pt-4 border-t flex flex-wrap gap-2">
+                      {(selectedOrder.status === 'DRAFT' ||
+                        selectedOrder.status === 'PENDING') &&
+                        !selectedOrder.paidAt && (
+                          <Button
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => {
+                              setShowPaymentModal(true)
+                              setSelectedPaymentMethod(
+                                selectedOrder.paymentMethodId || ''
+                              )
+                            }}
+                          >
+                            <DollarSign size={16} className="mr-2" />
+                            Process Payment
+                          </Button>
+                        )}
+                      {selectedOrder.status === 'PENDING' && (
+                        <Button
+                          onClick={() =>
+                            handleStatusChange(selectedOrder.id, 'CONFIRMED')
+                          }
+                          disabled={updateLoading}
+                        >
+                          <CheckCircle size={16} className="mr-2" />
+                          Confirm Order
+                        </Button>
+                      )}
+                      {selectedOrder.status === 'CONFIRMED' && (
+                        <Button
+                          onClick={() =>
+                            handleStatusChange(selectedOrder.id, 'DELIVERED')
+                          }
+                          disabled={updateLoading}
+                        >
+                          <Truck size={16} className="mr-2" />
+                          Mark as Delivered
+                        </Button>
+                      )}
                       <Button
-                        className="bg-green-600 hover:bg-green-700"
-                        onClick={() => {
-                          setShowPaymentModal(true);
-                          setSelectedPaymentMethod(selectedOrder.paymentMethodId || "");
-                        }}
+                        variant="destructive"
+                        onClick={() => handleCancelOrder(selectedOrder.id)}
+                        disabled={cancelLoading}
                       >
-                        <DollarSign size={16} className="mr-2" />
-                        Process Payment
+                        <XCircle size={16} className="mr-2" />
+                        Cancel Order
                       </Button>
-                    )}
-                    {selectedOrder.status === "PENDING" && (
-                      <Button
-                        onClick={() => handleStatusChange(selectedOrder.id, "CONFIRMED")}
-                        disabled={updateLoading}
-                      >
-                        <CheckCircle size={16} className="mr-2" />
-                        Confirm Order
-                      </Button>
-                    )}
-                    {selectedOrder.status === "CONFIRMED" && (
-                      <Button
-                        onClick={() => handleStatusChange(selectedOrder.id, "DELIVERED")}
-                        disabled={updateLoading}
-                      >
-                        <Truck size={16} className="mr-2" />
-                        Mark as Delivered
-                      </Button>
-                    )}
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleCancelOrder(selectedOrder.id)}
-                      disabled={cancelLoading}
-                    >
-                      <XCircle size={16} className="mr-2" />
-                      Cancel Order
-                    </Button>
-                  </div>
-                )}
+                    </div>
+                  )}
 
                 {/* Timestamps */}
                 <div className="pt-4 border-t text-xs text-muted-foreground">
-                  <p>Created: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-                  <p>Last Updated: {new Date(selectedOrder.updatedAt).toLocaleString()}</p>
+                  <p>
+                    Created:{' '}
+                    {new Date(selectedOrder.createdAt).toLocaleString()}
+                  </p>
+                  <p>
+                    Last Updated:{' '}
+                    {new Date(selectedOrder.updatedAt).toLocaleString()}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -742,8 +839,8 @@ export default function AdminOrdersPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setShowPaymentModal(false);
-                    setSelectedPaymentMethod("");
+                    setShowPaymentModal(false)
+                    setSelectedPaymentMethod('')
                   }}
                 >
                   <XCircle size={20} />
@@ -754,9 +851,12 @@ export default function AdminOrdersPage() {
                 <div className="bg-muted/50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Order #{selectedOrder.id.slice(0, 8)}</p>
+                      <p className="font-medium">
+                        Order #{selectedOrder.id.slice(0, 8)}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedOrder.user?.name} • {selectedOrder.orderItems.length} items
+                        {selectedOrder.user?.name} •{' '}
+                        {selectedOrder.orderItems.length} items
                       </p>
                     </div>
                     <p className="text-xl font-bold text-primary">
@@ -766,19 +866,23 @@ export default function AdminOrdersPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Select Payment Method</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Select Payment Method
+                  </label>
                   <div className="space-y-2">
                     {paymentMethods.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No payment methods available</p>
+                      <p className="text-sm text-muted-foreground">
+                        No payment methods available
+                      </p>
                     ) : (
                       paymentMethods.map((method) => (
                         <label
                           key={method.id}
                           className={clsx(
-                            "flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors",
+                            'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
                             selectedPaymentMethod === method.id
-                              ? "border-primary bg-primary/5"
-                              : "hover:bg-muted/50"
+                              ? 'border-primary bg-primary/5'
+                              : 'hover:bg-muted/50'
                           )}
                         >
                           <input
@@ -789,7 +893,10 @@ export default function AdminOrdersPage() {
                             onChange={() => setSelectedPaymentMethod(method.id)}
                             className="w-4 h-4"
                           />
-                          <CreditCard size={20} className="text-muted-foreground" />
+                          <CreditCard
+                            size={20}
+                            className="text-muted-foreground"
+                          />
                           <div className="flex-1">
                             <p className="font-medium">{method.provider}</p>
                             <p className="text-xs text-muted-foreground">
@@ -807,8 +914,8 @@ export default function AdminOrdersPage() {
                     variant="outline"
                     className="flex-1"
                     onClick={() => {
-                      setShowPaymentModal(false);
-                      setSelectedPaymentMethod("");
+                      setShowPaymentModal(false)
+                      setSelectedPaymentMethod('')
                     }}
                   >
                     Cancel
@@ -818,7 +925,9 @@ export default function AdminOrdersPage() {
                     onClick={handleProcessPayment}
                     disabled={paymentLoading || !selectedPaymentMethod}
                   >
-                    {paymentLoading && <Loader2 className="animate-spin mr-2" size={16} />}
+                    {paymentLoading && (
+                      <Loader2 className="animate-spin mr-2" size={16} />
+                    )}
                     Confirm Payment
                   </Button>
                 </div>
@@ -828,5 +937,5 @@ export default function AdminOrdersPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

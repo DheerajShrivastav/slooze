@@ -1,24 +1,24 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { gql } from "@apollo/client";
-import { useQuery, useMutation } from "@apollo/client/react";
-import { 
-  Search, 
-  Plus, 
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { gql } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client/react'
+import {
+  Search,
+  Plus,
   Edit,
   Trash2,
   Loader2,
   RefreshCw,
   XCircle,
   Check,
-  X
-} from "lucide-react";
-import { toast } from "sonner";
-import { clsx } from "clsx";
+  X,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import { clsx } from 'clsx'
 
 const GET_RESTAURANTS = gql`
   query GetRestaurants {
@@ -27,7 +27,7 @@ const GET_RESTAURANTS = gql`
       name
     }
   }
-`;
+`
 
 const GET_MENU_ITEMS = gql`
   query GetMenuItems($restaurantId: String!) {
@@ -44,7 +44,7 @@ const GET_MENU_ITEMS = gql`
       createdAt
     }
   }
-`;
+`
 
 const CREATE_MENU_ITEM = gql`
   mutation CreateMenuItem($input: CreateMenuItemInput!) {
@@ -53,7 +53,7 @@ const CREATE_MENU_ITEM = gql`
       name
     }
   }
-`;
+`
 
 const UPDATE_MENU_ITEM = gql`
   mutation UpdateMenuItem($id: String!, $input: UpdateMenuItemInput!) {
@@ -62,130 +62,143 @@ const UPDATE_MENU_ITEM = gql`
       name
     }
   }
-`;
+`
 
 const DELETE_MENU_ITEM = gql`
   mutation DeleteMenuItem($id: String!) {
     deleteMenuItem(id: $id)
   }
-`;
+`
 
 interface Restaurant {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface MenuItem {
-  id: string;
-  restaurantId: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-  isAvailable: boolean;
-  isVegetarian: boolean;
-  createdAt: string;
+  id: string
+  restaurantId: string
+  name: string
+  description: string
+  price: number
+  imageUrl: string
+  category: string
+  isAvailable: boolean
+  isVegetarian: boolean
+  createdAt: string
 }
 
 interface RestaurantsData {
-  restaurants: Restaurant[];
+  restaurants: Restaurant[]
 }
 
 interface MenuItemsData {
-  menuItems: MenuItem[];
+  menuItems: MenuItem[]
 }
 
 interface MenuItemForm {
-  restaurantId: string;
-  name: string;
-  description: string;
-  price: string;
-  imageUrl: string;
-  category: string;
-  isAvailable: boolean;
-  isVegetarian: boolean;
+  restaurantId: string
+  name: string
+  description: string
+  price: string
+  imageUrl: string
+  category: string
+  isAvailable: boolean
+  isVegetarian: boolean
 }
 
 const defaultFormData: MenuItemForm = {
-  restaurantId: "",
-  name: "",
-  description: "",
-  price: "",
-  imageUrl: "",
-  category: "",
+  restaurantId: '',
+  name: '',
+  description: '',
+  price: '',
+  imageUrl: '',
+  category: '',
   isAvailable: true,
   isVegetarian: false,
-};
+}
 
 export default function AdminMenuItemsPage() {
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
-  const [formData, setFormData] = useState<MenuItemForm>(defaultFormData);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<any>(null)
+  const [formData, setFormData] = useState<MenuItemForm>(defaultFormData)
 
-  const { data: restaurantsData } = useQuery<RestaurantsData>(GET_RESTAURANTS);
-  const { data: menuItemsData, loading, refetch } = useQuery<MenuItemsData>(GET_MENU_ITEMS, {
+  const { data: restaurantsData } = useQuery<RestaurantsData>(GET_RESTAURANTS)
+  const {
+    data: menuItemsData,
+    loading,
+    refetch,
+  } = useQuery<MenuItemsData>(GET_MENU_ITEMS, {
     variables: { restaurantId: selectedRestaurant },
     skip: !selectedRestaurant,
-    fetchPolicy: "network-only",
-  });
+    fetchPolicy: 'network-only',
+  })
 
-  const [createMenuItem, { loading: createLoading }] = useMutation(CREATE_MENU_ITEM, {
-    onCompleted: () => {
-      toast.success("Menu item created successfully");
-      refetch();
-      closeModal();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [createMenuItem, { loading: createLoading }] = useMutation(
+    CREATE_MENU_ITEM,
+    {
+      onCompleted: () => {
+        toast.success('Menu item created successfully')
+        refetch()
+        closeModal()
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
-  const [updateMenuItem, { loading: updateLoading }] = useMutation(UPDATE_MENU_ITEM, {
-    onCompleted: () => {
-      toast.success("Menu item updated successfully");
-      refetch();
-      closeModal();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [updateMenuItem, { loading: updateLoading }] = useMutation(
+    UPDATE_MENU_ITEM,
+    {
+      onCompleted: () => {
+        toast.success('Menu item updated successfully')
+        refetch()
+        closeModal()
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
-  const [deleteMenuItem, { loading: deleteLoading }] = useMutation(DELETE_MENU_ITEM, {
-    onCompleted: () => {
-      toast.success("Menu item deleted successfully");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const [deleteMenuItem, { loading: deleteLoading }] = useMutation(
+    DELETE_MENU_ITEM,
+    {
+      onCompleted: () => {
+        toast.success('Menu item deleted successfully')
+        refetch()
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
 
-  const restaurants = restaurantsData?.restaurants || [];
-  const menuItems = menuItemsData?.menuItems || [];
+  const restaurants = restaurantsData?.restaurants || []
+  const menuItems = menuItemsData?.menuItems || []
 
   const filteredItems = menuItems.filter((item: any) => {
-    if (!searchQuery) return true;
+    if (!searchQuery) return true
     return (
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+    )
+  })
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingItem(null);
-    setFormData(defaultFormData);
-  };
+    setIsModalOpen(false)
+    setEditingItem(null)
+    setFormData(defaultFormData)
+  }
 
   const openCreateModal = () => {
-    setFormData({ ...defaultFormData, restaurantId: selectedRestaurant });
-    setEditingItem(null);
-    setIsModalOpen(true);
-  };
+    setFormData({ ...defaultFormData, restaurantId: selectedRestaurant })
+    setEditingItem(null)
+    setIsModalOpen(true)
+  }
 
   const openEditModal = (item: any) => {
     setFormData({
@@ -197,14 +210,14 @@ export default function AdminMenuItemsPage() {
       category: item.category,
       isAvailable: item.isAvailable,
       isVegetarian: item.isVegetarian,
-    });
-    setEditingItem(item);
-    setIsModalOpen(true);
-  };
+    })
+    setEditingItem(item)
+    setIsModalOpen(true)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     if (editingItem) {
       updateMenuItem({
         variables: {
@@ -219,7 +232,7 @@ export default function AdminMenuItemsPage() {
             isVegetarian: formData.isVegetarian,
           },
         },
-      });
+      })
     } else {
       createMenuItem({
         variables: {
@@ -234,15 +247,15 @@ export default function AdminMenuItemsPage() {
             isVegetarian: formData.isVegetarian,
           },
         },
-      });
+      })
     }
-  };
+  }
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this menu item?")) {
-      deleteMenuItem({ variables: { id } });
+    if (confirm('Are you sure you want to delete this menu item?')) {
+      deleteMenuItem({ variables: { id } })
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -289,7 +302,10 @@ export default function AdminMenuItemsPage() {
                   Search
                 </label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
                   <Input
                     placeholder="Search menu items..."
                     className="pl-10"
@@ -344,13 +360,13 @@ export default function AdminMenuItemsPage() {
                   )}
                   <span
                     className={clsx(
-                      "text-xs px-2 py-0.5 rounded",
+                      'text-xs px-2 py-0.5 rounded',
                       item.isAvailable
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
                     )}
                   >
-                    {item.isAvailable ? "Available" : "Unavailable"}
+                    {item.isAvailable ? 'Available' : 'Unavailable'}
                   </span>
                 </div>
               </div>
@@ -401,7 +417,7 @@ export default function AdminMenuItemsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">
-                  {editingItem ? "Edit Menu Item" : "Add Menu Item"}
+                  {editingItem ? 'Edit Menu Item' : 'Add Menu Item'}
                 </h2>
                 <Button variant="ghost" size="sm" onClick={closeModal}>
                   <XCircle size={20} />
@@ -413,7 +429,9 @@ export default function AdminMenuItemsPage() {
                   <label className="text-sm font-medium">Name</label>
                   <Input
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -422,7 +440,9 @@ export default function AdminMenuItemsPage() {
                   <label className="text-sm font-medium">Description</label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     className="w-full px-3 py-2 border rounded-lg bg-background text-sm min-h-20"
                     required
                   />
@@ -436,7 +456,9 @@ export default function AdminMenuItemsPage() {
                       step="0.01"
                       min="0"
                       value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, price: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -444,7 +466,9 @@ export default function AdminMenuItemsPage() {
                     <label className="text-sm font-medium">Category</label>
                     <Input
                       value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, category: e.target.value })
+                      }
                       placeholder="e.g., Appetizers, Main Course"
                       required
                     />
@@ -456,7 +480,9 @@ export default function AdminMenuItemsPage() {
                   <Input
                     type="url"
                     value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, imageUrl: e.target.value })
+                    }
                     placeholder="https://..."
                     required
                   />
@@ -467,7 +493,12 @@ export default function AdminMenuItemsPage() {
                     <input
                       type="checkbox"
                       checked={formData.isAvailable}
-                      onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          isAvailable: e.target.checked,
+                        })
+                      }
                       className="w-4 h-4"
                     />
                     <span className="text-sm">Available</span>
@@ -476,7 +507,12 @@ export default function AdminMenuItemsPage() {
                     <input
                       type="checkbox"
                       checked={formData.isVegetarian}
-                      onChange={(e) => setFormData({ ...formData, isVegetarian: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          isVegetarian: e.target.checked,
+                        })
+                      }
                       className="w-4 h-4"
                     />
                     <span className="text-sm">Vegetarian</span>
@@ -484,14 +520,23 @@ export default function AdminMenuItemsPage() {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={closeModal} className="flex-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeModal}
+                    className="flex-1"
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" className="flex-1" disabled={createLoading || updateLoading}>
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={createLoading || updateLoading}
+                  >
                     {(createLoading || updateLoading) && (
                       <Loader2 className="animate-spin mr-2" size={16} />
                     )}
-                    {editingItem ? "Update" : "Create"}
+                    {editingItem ? 'Update' : 'Create'}
                   </Button>
                 </div>
               </form>
@@ -500,5 +545,5 @@ export default function AdminMenuItemsPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

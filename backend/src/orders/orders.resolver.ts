@@ -128,7 +128,10 @@ export class OrdersResolver {
   async updateOrderStatus(
     @Args('input') input: UpdateOrderStatusInput
   ): Promise<OrderType> {
-    return await this.ordersService.updateOrderStatus(input.orderId, input.status)
+    return await this.ordersService.updateOrderStatus(
+      input.orderId,
+      input.status
+    )
   }
 
   @Mutation(() => OrderType)
@@ -137,6 +140,9 @@ export class OrdersResolver {
   async adminProcessPayment(
     @Args('input') input: AdminProcessPaymentInput
   ): Promise<OrderType> {
-    return await this.ordersService.adminProcessPayment(input.orderId, input.paymentMethodId)
+    return await this.ordersService.adminProcessPayment(
+      input.orderId,
+      input.paymentMethodId
+    )
   }
 }
