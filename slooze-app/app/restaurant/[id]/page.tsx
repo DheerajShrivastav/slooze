@@ -266,14 +266,16 @@ export default function RestaurantPage() {
       {/* Floating Cart */}
       {getTotalItems() > 0 && (
         <div className="fixed bottom-6 right-6 z-50 animate-bounce-in">
-          <button className="bg-gradient-to-r from-[#FF6B35] to-[#FFD23F] text-white font-bold px-8 py-4 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all flex items-center gap-3">
-            <span className="text-2xl">🛒</span>
-            <div className="text-left">
-              <div className="text-sm opacity-90">{getTotalItems()} items</div>
-              <div className="text-lg font-bold">${getTotalPrice().toFixed(2)}</div>
-            </div>
-            <span className="text-xl">→</span>
-          </button>
+          <Link href="/cart">
+            <button className="bg-gradient-to-r from-[#FF6B35] to-[#FFD23F] text-white font-bold px-8 py-4 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all flex items-center gap-3">
+              <span className="text-2xl">🛒</span>
+              <div className="text-left">
+                <div className="text-sm opacity-90">{getTotalItems()} items</div>
+                <div className="text-lg font-bold">${getTotalPrice().toFixed(2)}</div>
+              </div>
+              <span className="text-xl">→</span>
+            </button>
+          </Link>
         </div>
       )}
     </div>
