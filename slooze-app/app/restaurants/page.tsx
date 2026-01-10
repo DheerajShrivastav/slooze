@@ -5,10 +5,12 @@ import { useQuery } from '@apollo/client/react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { MapPin, Star, Clock } from 'lucide-react'
+import { MapPin, Star, Clock, Search, X } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useState, useEffect, useMemo } from 'react'
 
 const GET_RESTAURANTS = gql`
   query GetRestaurants {
@@ -23,13 +25,53 @@ const GET_RESTAURANTS = gql`
   }
 `
 
+interface Restaurant {
+  id: string
+  name: string
+  cuisine: string
+  rating: number
+  deliveryTime: string
+  imageUrl: string
+}
+
 export default function RestaurantsPage() {
   const { data, loading, error } = useQuery(GET_RESTAURANTS)
+  const searchParams = useSearchParams()
   const [isClient, setIsClient] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCuisine, setSelectedCuisine] = useState<string>('All')
 
   useEffect(() => {
     setIsClient(true)
-  }, [])
+    // Read search query from URL params
+    const urlSearch = searchParams.get('search')
+    if (urlSearch) {
+      setSearchQuery(urlSearch)
+    }
+  }, [searchParams])
+
+  // Get unique cuisines from restaurants
+  const cuisines = useMemo(() => {
+    if (!data?.restaurants) return ['All']
+    const uniqueCuisines = [...new Set(data.restaurants.map((r: Restaurant) => r.cuisine))]
+    return ['All', ...uniqueCuisines.sort()]
+  }, [data?.restaurants])
+
+  // Filter restaurants based on search and cuisine
+  const filteredRestaurants = useMemo(() => {
+    if (!data?.restaurants) return []
+    
+    return data.restaurants.filter((restaurant: Restaurant) => {
+      const matchesSearch = searchQuery.trim() === '' || 
+        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
+      
+      const matchesCuisine = selectedCuisine === 'All' || 
+        restaurant.cuisine === selectedCuisine
+
+      return matchesSearch && matchesCuisine
+    })
+  }, [data?.restaurants, searchQuery, selectedCuisine])
 
   if (!isClient) return null
 
@@ -47,16 +89,43 @@ export default function RestaurantsPage() {
               Discover the best food from top-rated local spots.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="rounded-full">
-              All
-            </Button>
-            <Button variant="ghost" className="rounded-full">
-              Fast Food
-            </Button>
-            <Button variant="ghost" className="rounded-full">
-              Healthy
-            </Button>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="mb-8 space-y-4">
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            <Input
+              type="text"
+              placeholder="Search restaurants or cuisines..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 h-12 rounded-full"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+
+          {/* Cuisine Filters */}
+          <div className="flex gap-2 flex-wrap">
+            {cuisines.map((cuisine) => (
+              <Button
+                key={cuisine}
+                variant={selectedCuisine === cuisine ? 'default' : 'outline'}
+                className="rounded-full"
+                onClick={() => setSelectedCuisine(cuisine)}
+                size="sm"
+              >
+                {cuisine}
+              </Button>
+            ))}
           </div>
         </div>
 
@@ -89,8 +158,36 @@ export default function RestaurantsPage() {
         )}
 
         {data?.restaurants && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {data.restaurants.map((restaurant: any) => (
+          <>
+            {/* Results Count */}
+            {searchQuery || selectedCuisine !== 'All' ? (
+              <p className="text-sm text-muted-foreground mb-4">
+                Found {filteredRestaurants.length} restaurant{filteredRestaurants.length !== 1 ? 's' : ''}
+                {searchQuery && ` for "${searchQuery}"`}
+                {selectedCuisine !== 'All' && ` in ${selectedCuisine}`}
+              </p>
+            ) : null}
+
+            {filteredRestaurants.length === 0 ? (
+              <div className="text-center py-20 bg-muted/30 rounded-3xl">
+                <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <h2 className="text-xl font-bold mb-2">No restaurants found</h2>
+                <p className="text-muted-foreground mb-4">
+                  Try adjusting your search or filters
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery('')
+                    setSelectedCuisine('All')
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredRestaurants.map((restaurant: Restaurant) => (
               <Link
                 href={`/restaurants/${restaurant.id}`}
                 key={restaurant.id}
@@ -147,7 +244,9 @@ export default function RestaurantsPage() {
                 </Card>
               </Link>
             ))}
-          </div>
+              </div>
+            )}
+          </>
         )}
       </main>
       <Footer />

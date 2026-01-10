@@ -11,110 +11,27 @@ import {
   Minus,
   ArrowRight,
   ShoppingBag,
-  Loader2,
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
-import { useState } from 'react'
-
-const CREATE_ORDER = gql`
-  mutation CreateOrder($input: CreateOrderInput!) {
-    createOrder(input: $input) {
-      id
-      status
-      totalAmount
-    }
-  }
-`
-
-const ADD_ORDER_ITEM = gql`
-  mutation AddOrderItem($input: AddOrderItemInput!) {
-    addOrderItem(input: $input) {
-      id
-      menuItemId
-      quantity
-      priceAtOrder
-    }
-  }
-`
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, total, restaurantId } =
     useCart()
-  const { user } = useAuth()
+  const { isAuthenticated } = useAuth()
   const router = useRouter()
-  const [isProcessing, setIsProcessing] = useState(false)
 
-  const [createOrder] = useMutation(CREATE_ORDER)
-  const [addOrderItem] = useMutation(ADD_ORDER_ITEM)
-
-  const handleCheckout = async () => {
-    if (!user) {
-      toast.error('Please sign in to place an order')
-      router.push('/auth/login?redirect=/cart')
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to checkout')
+      router.push('/auth/login?redirect=/checkout')
       return
     }
 
-    if (items.length === 0) {
-      toast.error('Your cart is empty')
-      return
-    }
-
-    if (!restaurantId) {
-      toast.error('Something went wrong. No restaurant detected.')
-      return
-    }
-
-    setIsProcessing(true)
-    const toastId = toast.loading('Creating your order...')
-
-    try {
-      // 1. Create the Order
-      const { data: orderData } = await createOrder({
-        variables: {
-          input: {
-            restaurantId: restaurantId,
-            // address: "Default Address" // We might need an address input later
-          },
-        },
-      })
-
-      const orderId = orderData.createOrder.id
-      console.log('Order created:', orderId)
-
-      // 2. Add Items to the Order
-      const itemPromises = items.map((item) =>
-        addOrderItem({
-          variables: {
-            input: {
-              orderId: orderId,
-              menuItemId: item.menuItemId,
-              quantity: item.quantity,
-            },
-          },
-        })
-      )
-
-      await Promise.all(itemPromises)
-
-      // Success
-      toast.dismiss(toastId)
-      toast.success('Order placed successfully! 🚀')
-      clearCart()
-
-      // Redirect home or to order confirmation
-      router.push('/')
-    } catch (error: any) {
-      toast.dismiss(toastId)
-      console.error('Checkout error:', error)
-      toast.error(error.message || 'Failed to place order')
-    } finally {
-      setIsProcessing(false)
-    }
+    // Redirect to checkout page
+    router.push('/checkout')
   }
 
   const deliveryFee = 2.99
@@ -255,18 +172,8 @@ export default function CartPage() {
                   <Button
                     className="w-full text-lg h-12 rounded-xl mt-4"
                     onClick={handleCheckout}
-                    disabled={isProcessing}
                   >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        Checkout <ArrowRight className="ml-2 w-4 h-4" />
-                      </>
-                    )}
+                    Proceed to Checkout <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
 
                   <p className="text-xs text-center text-muted-foreground mt-2">

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   ShoppingBag,
@@ -18,10 +19,20 @@ import { clsx } from 'clsx'
 export function Header() {
   const { user, logout, isAuthenticated } = useAuth()
   const { items } = useCart()
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0)
   const isAdminOrManager = user?.role === 'ADMIN' || user?.role === 'MANAGER'
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/restaurants?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery('')
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -70,14 +81,16 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border focus-within:ring-1 ring-primary transition-all">
+          <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border focus-within:ring-1 ring-primary transition-all">
             <Search className="w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search food..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-muted-foreground text-foreground"
             />
-          </div>
+          </form>
 
           <Link href="/cart">
             <Button variant="ghost" size="sm" className="relative">

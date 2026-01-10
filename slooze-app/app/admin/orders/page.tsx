@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ReceiptModal } from '@/components/ui/receipt-modal'
 import { gql } from '@apollo/client'
 import { useQuery, useMutation } from '@apollo/client/react'
 import {
@@ -22,6 +23,7 @@ import {
   UtensilsCrossed,
   DollarSign,
   Package,
+  FileText,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { clsx } from 'clsx'
@@ -53,6 +55,7 @@ const GET_ALL_ORDERS = gql`
         id
         name
         imageUrl
+        cuisine
       }
       paymentMethod {
         id
@@ -144,6 +147,7 @@ interface Restaurant {
   id: string
   name: string
   imageUrl: string
+  cuisine?: string
 }
 
 interface PaymentMethod {
@@ -209,6 +213,8 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('')
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showReceiptModal, setShowReceiptModal] = useState(false)
+  const [receiptOrder, setReceiptOrder] = useState<Order | null>(null)
 
   const { data, loading, refetch } = useQuery<OrdersData>(GET_ALL_ORDERS, {
     variables: { status: statusFilter || null },
@@ -304,6 +310,16 @@ export default function AdminOrdersPage() {
     setSelectedOrder(order)
     setSelectedPaymentMethod(order.paymentMethodId || '')
     setShowPaymentModal(true)
+  }
+
+  const openReceiptModal = (order: Order) => {
+    setReceiptOrder(order)
+    setShowReceiptModal(true)
+  }
+
+  const closeReceiptModal = () => {
+    setShowReceiptModal(false)
+    setReceiptOrder(null)
   }
 
   return (
@@ -532,6 +548,16 @@ export default function AdminOrdersPage() {
                       Details
                     </Button>
 
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 lg:flex-none"
+                      onClick={() => openReceiptModal(order)}
+                    >
+                      <FileText size={14} className="mr-1" />
+                      Receipt
+                    </Button>
+
                     {(order.status === 'DRAFT' || order.status === 'PENDING') &&
                       !order.paidAt && (
                         <Button
@@ -758,6 +784,20 @@ export default function AdminOrdersPage() {
                   </div>
                 </div>
 
+                {/* Receipt Button - Always visible */}
+                <div className="pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      openReceiptModal(selectedOrder)
+                    }}
+                  >
+                    <FileText size={16} className="mr-2" />
+                    View & Download Receipt
+                  </Button>
+                </div>
+
                 {/* Actions */}
                 {selectedOrder.status !== 'CANCELLED' &&
                   selectedOrder.status !== 'DELIVERED' && (
@@ -935,6 +975,15 @@ export default function AdminOrdersPage() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Receipt Modal */}
+      {receiptOrder && (
+        <ReceiptModal
+          order={receiptOrder}
+          isOpen={showReceiptModal}
+          onClose={closeReceiptModal}
+        />
       )}
     </div>
   )

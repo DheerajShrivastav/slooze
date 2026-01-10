@@ -6,7 +6,8 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, ShoppingBag } from 'lucide-react'
+import { ReceiptModal } from '@/components/ui/receipt-modal'
+import { ShoppingBag, FileText, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -17,20 +18,96 @@ const GET_MY_ORDERS = gql`
       createdAt
       status
       totalAmount
+      deliveryAddress
+      paidAt
+      user {
+        id
+        name
+        email
+        country
+      }
+      restaurant {
+        id
+        name
+        description
+        cuisine
+      }
+      paymentMethod {
+        id
+        type
+        provider
+        last4Digits
+      }
       orderItems {
+        id
         quantity
+        priceAtOrder
+        menuItem {
+          id
+          name
+          category
+        }
       }
     }
   }
 `
 
+interface Order {
+  id: string
+  createdAt: string
+  status: string
+  totalAmount: number
+  deliveryAddress?: string | null
+  paidAt?: string | null
+  user?: {
+    id: string
+    name: string
+    email: string
+    country?: string
+  } | null
+  restaurant?: {
+    id: string
+    name: string
+    description?: string
+    cuisine?: string
+  } | null
+  paymentMethod?: {
+    id: string
+    type: string
+    provider: string
+    last4Digits: string
+  } | null
+  orderItems: {
+    id: string
+    quantity: number
+    priceAtOrder: number
+    menuItem?: {
+      id: string
+      name: string
+      category?: string
+    } | null
+  }[]
+}
+
 export default function OrdersPage() {
   const { data, loading, error } = useQuery(GET_MY_ORDERS)
   const [isClient, setIsClient] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [showReceipt, setShowReceipt] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  const handleViewReceipt = (order: Order) => {
+    setSelectedOrder(order)
+    setShowReceipt(true)
+  }
+
+  const handleCloseReceipt = () => {
+    setShowReceipt(false)
+    setSelectedOrder(null)
+  }
 
   if (!isClient) return null
 
@@ -72,7 +149,7 @@ export default function OrdersPage() {
         )}
 
         <div className="space-y-4">
-          {data?.myOrders?.map((order: any) => (
+          {data?.myOrders?.map((order: Order) => (
             <Card key={order.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="flex-1">
@@ -80,20 +157,47 @@ export default function OrdersPage() {
                     <h3 className="font-bold text-lg">
                       Order #{order.id.slice(0, 8)}
                     </h3>
-                    <span className="px-2 py-0.5 bg-gray-100 text-xs font-bold rounded-full">
+                    <span
+                      className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                        order.status === 'DELIVERED'
+                          ? 'bg-green-100 text-green-700'
+                          : order.status === 'CANCELLED'
+                          ? 'bg-red-100 text-red-700'
+                          : order.status === 'CONFIRMED'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}
+                    >
                       {order.status}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {new Date(order.createdAt).toLocaleDateString()} •{' '}
                     {order.orderItems?.length || 0} items
+                    {order.restaurant?.name && ` • ${order.restaurant.name}`}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-lg">${order.totalAmount}</p>
-                  <Button variant="outline" size="sm" className="mt-2 text-xs">
-                    Reorder
-                  </Button>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-bold text-lg">
+                      ${order.totalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => handleViewReceipt(order)}
+                    >
+                      <FileText size={14} className="mr-1" />
+                      Receipt
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <RotateCcw size={14} className="mr-1" />
+                      Reorder
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -102,6 +206,15 @@ export default function OrdersPage() {
       </main>
 
       <Footer />
+
+      {/* Receipt Modal */}
+      {selectedOrder && (
+        <ReceiptModal
+          order={selectedOrder}
+          isOpen={showReceipt}
+          onClose={handleCloseReceipt}
+        />
+      )}
     </div>
   )
 }
